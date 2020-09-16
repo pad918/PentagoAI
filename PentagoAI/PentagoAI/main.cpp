@@ -1,9 +1,12 @@
 #include <iostream>
-
+#include "Pentago.h"
 
 int main() {
+	//Test
+	ptg::PentagoGame game;
+	game.playManualGame();
+	//End of test
 
-	std::cout << "Test" << std::endl;
 
 	//Pause window
 	int c; std::cin >> c;
