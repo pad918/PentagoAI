@@ -55,18 +55,26 @@ void ptg::PentagoSubBoard::rotate(int dir)
 int ptg::PentagoGame::maxMarblesInARow(int player, int total, int dir, int x, int y)
 {
 	//Recursive function
+	/*
+		There are 8 dirctions, 
+		0 = up right
+		1 = right
+		2 = down right
+		3 = down
+		4 = down left
+		5 = left
+		6 = up left
+		7 = up
+	*/
+	looedTimes++;
 	int max = 0;
+	int dirs[8]; 
 	if (dir < 0) {
-		int dir1 = maxMarblesInARow(player, 0, 0, x, y);
-		/*int dir2 = maxMarblesInARow(player, 0, 1, x, y);
-		int dir3 = maxMarblesInARow(player, 0, 2, x, y);
-		int dir4 = maxMarblesInARow(player, 0, 3, x, y);
-		*/
-		max = dir1;
-		/*if (dir2 > max) { max = dir2; }
-		if (dir3 > max) { max = dir3; }
-		if (dir4 > max) { max = dir4; }
-		*/
+		for(int i=0; i<8; i++)
+			dirs[i] = maxMarblesInARow(player, 0, i, x, y);
+		for (int i = 0; i < 8; i++) {
+			if (max < dirs[i]) { max = dirs[i]; }
+		}
 	}
 	else {
 		int subBoardPos = 0;
@@ -74,23 +82,51 @@ int ptg::PentagoGame::maxMarblesInARow(int player, int total, int dir, int x, in
 		int subBoardYPos = 0;
 		switch (dir)
 		{
-		case 0:
-			x++;
-			subBoardPos =  (y / 3) * 2 + (x / 3) * 1;
-			subBoardXPos = (x % 3);
-			subBoardYPos = (y % 3);
-			if (subBoards[subBoardPos].marbles[subBoardYPos * 3 + subBoardXPos] == player) {
-				total = maxMarblesInARow(player, total+1, dir, x, y);
-				
-			}
-			else {
+			case 0:
+				x++;
+				y--;
+
+				break;
+			case 1:
+				x++;
+				break;
+			case 2:
+				x++;
+				y++;
+				break;
+			case 3:
+				y++;
+				break;
+			case 4:
+				y++;
+				x--;
+				break;
+			case 5:
+				x--;
+				break;
+			case 6:
+				y--;
+				x--;
+				break;
+			case 7:
+				y--;
+				break;
+			default:
 				return total;
-			}
-			break;
-		default:
-			return total;
-			break;
+				break;
 		}
+
+		subBoardPos = (y / 3) * 2 + (x / 3) * 1;
+		subBoardXPos = (x % 3);
+		subBoardYPos = (y % 3);
+		if (subBoards[subBoardPos].marbles[subBoardYPos * 3 + subBoardXPos] == player && (x < 6 && x >= 0 && y < 6 && y >= 0)) { // && (x<6 && x>=0 && y<6 && y>=0)
+			total = maxMarblesInARow(player, total + 1, dir, x, y);
+
+		}
+		else {
+			return total;
+		}
+
 	}
 	if (total > max) { max = total; }
 	return max;
@@ -99,9 +135,111 @@ int ptg::PentagoGame::maxMarblesInARow(int player, int total, int dir, int x, in
 int ptg::PentagoGame::hasWon()
 {
 	//Test player one:
-	//TEST...
+	looedTimes = 0;
+	int playerOneMaxInARow = 0; 1 + maxMarblesInARow(1, 0, -1, 0, 0);
+	int playerTwoMaxInARow = 0; 1 + maxMarblesInARow(2, 0, -1, 0, 0);
+	for (int y = 0; y < 6; y++) {
+		int localY = y % 3;
+		for (int x = 0; x < 6; x++) {
+			int localX = x % 3;
+			int subBoardPos = (y/3)*2+(x/3);
+			if (subBoards[subBoardPos].marbles[y * 3 + x] == 1) {
+				int maxInRow = 1 + maxMarblesInARow(1, 0, -1, x, y);
+				playerOneMaxInARow = (playerOneMaxInARow < maxInRow) ? maxInRow : playerOneMaxInARow;
+			}
+			if (subBoards[subBoardPos].marbles[y * 3 + x] == 2) {
+				int maxInRow = 1 + maxMarblesInARow(2, 0, -1, x, y);
+				playerTwoMaxInARow = (playerTwoMaxInARow < maxInRow) ? maxInRow : playerTwoMaxInARow;
+			}
+		}
+	}
+	if (playerOneMaxInARow >= 5) { return 1; }
+	if (playerTwoMaxInARow >= 5) { return 2; }
+	return 0;
+}
 
-	return maxMarblesInARow(1, 0, -1, 0, 0);
+int ptg::PentagoGame::hasWonFast()
+{
+	looedTimes = 0;
+	for (int y = 0; y < 6; y++) {
+		int localY = y % 3;
+		for (int x = 0; x < 6; x++) {
+			int localX = x % 3;
+			int subBoardPos = (y / 3) * 2 + (x / 3);
+			int player = subBoards[subBoardPos].marbles[localY * 3 + localX];
+			if (player != 0) {
+				looedTimes++;
+				//Up and down test
+				if (y < 2) {
+					localY = (y + 4) % 3;
+					localX = x % 3;
+					subBoardPos = ((y + 4) / 3) * 2 + (x / 3);
+					if (player == subBoards[subBoardPos].marbles[localY * 3 + localX]){
+						//Testa alla i mitten...
+						bool knowItIsNot5 = false;
+						for (int i = 1; i < 4; i++) {
+							localY = (y+i) % 3;
+							subBoardPos = ((y + i) / 3) * 2 + (x / 3);
+							if (subBoards[subBoardPos].marbles[localY * 3 + localX] != player) { knowItIsNot5 = true; }
+						}
+						if (!knowItIsNot5) { return player; }
+					}
+				}
+				//Right and left test
+				if (x < 2) {
+					localY = y % 3;
+					localX = (x + 4) % 3;
+					subBoardPos = ((y + 4) / 3) * 2 + (x / 3);
+					if (player == subBoards[subBoardPos].marbles[localY * 3 + localX]) {
+						//Testa alla i mitten...
+						bool knowItIsNot5 = false;
+						for (int i = 1; i < 4; i++) {
+							localX = (x + i) % 3;
+							subBoardPos = (y / 3) * 2 + ((x+i) / 3);
+							if (subBoards[subBoardPos].marbles[localY * 3 + localX] != player) { knowItIsNot5 = true; }
+						}
+						if (!knowItIsNot5) { return player; }
+					}
+				}
+				//Down left test
+				if (x < 2 && y < 2) {
+					localY = (y + 4) % 3;
+					localX = (x + 4) % 3;
+					subBoardPos = ((y + 4) / 3) * 2 + ((x + 4) / 3);
+					if (player == subBoards[subBoardPos].marbles[localY * 3 + localX]) {
+						//Testa alla i mitten...
+						bool knowItIsNot5 = false;
+						for (int i = 1; i < 4; i++) {
+							localX = (x + i) % 3;
+							localY = (y + i) % 3;
+							subBoardPos = ((y + i) / 3) * 2 + ((x + i) / 3);
+							if (subBoards[subBoardPos].marbles[localY * 3 + localX] != player) { knowItIsNot5 = true; }
+						}
+						if (!knowItIsNot5) { return player; }
+					}
+				}
+				//up right test
+				if (x < 2 && y >= 4) {
+					localY = (y - 4) % 3;
+					localX = (x + 4) % 3;
+					subBoardPos = ((y - 4) / 3) * 2 + ((x + 4) / 3);
+					if (player == subBoards[subBoardPos].marbles[localY * 3 + localX]) {
+						//Testa alla i mitten...
+						bool knowItIsNot5 = false;
+						for (int i = 1; i < 4; i++) {
+							localX = (x + i) % 3;
+							localY = (y - i) % 3;
+							subBoardPos = ((y - i) / 3) * 2 + ((x + i) / 3);
+							if (subBoards[subBoardPos].marbles[localY * 3 + localX] != player) { knowItIsNot5 = true; }
+						}
+						if (!knowItIsNot5) { return player; }
+					}
+				}
+			}
+		}
+	}
+
+	return 0;
 }
 
 ptg::PentagoGame::PentagoGame()
@@ -149,30 +287,36 @@ void ptg::PentagoGame::rotateSubBoard(int x, int y, int dir)
 void ptg::PentagoGame::playManualGame()
 {
 	setMarble(0, 0, 1);
-	setMarble(1, 0, 1);
-	setMarble(2, 0, 1);
-
+	int hw=0;
 	int plTurn = 0;
 	for (int i = 0; i < 36; i++) {
 		system("cls"); //REMOVE SHITTY WINDOWS ONLY SHIT!
-		//TEST
-		std::cout << "max in a row: " << hasWon() << "\n";
-		//END OF TEST
 		printBoard();
 		std::cout << "\n";
-		int x, y, val;
-		std::cout << "Player " << plTurn  << "'s turn. " << "Set marble: x:y:val : ";
-		std::cin >> x >> y >> val;
-		setMarble(x, y, val);
+		int x, y;
+		std::cout << "Player " << plTurn+1  << "'s turn. " << "Set marble: x:y : ";
+		std::cin >> x >> y;
+		setMarble(x, y, plTurn+1);
+		hw = hasWonFast();
+		if (hw != 0) {
+			break;
+		}
 		system("cls"); //REMOVE SHITTY WINDOWS ONLY SHIT!
 		printBoard();
 		std::cout << "\n";
 		int dir;
-		std::cout << "Player " << plTurn << "'s turn. " << "Rotate sub board: x:y:dir : ";
+		std::cout << "Player " << plTurn+1 << "'s turn. " << "Rotate sub board: x:y:dir : ";
 		std::cin >> x >> y >> dir;
 		rotateSubBoard(x, y, dir);
+		hw = hasWonFast();
+		if (hw != 0) {
+			break;
+		}
 		plTurn = 1 - plTurn; //Change player
 	}
+	system("cls");
+	printBoard();
+	std::cout << "  Player: " << hw << " WON!\n";
 }
 
 

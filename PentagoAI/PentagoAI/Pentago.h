@@ -17,13 +17,16 @@ namespace ptg {
 	private:
 		PentagoSubBoard subBoards[4];
 		int maxMarblesInARow(int player, int total, int dir, int x, int y);
-		int hasWon();
+		
 	public:
 		PentagoGame();
 		void printBoard();
 		void setMarble(int x, int y, int val);
 		void rotateSubBoard(int x, int y, int dir);
 		void playManualGame();
+		/*TEST VAR FOR DEBUGGING AND PROFILEING*/ int looedTimes = 0;
+		int hasWon(); // borde vara privat
+		int hasWonFast();
 	};
 
 
