@@ -16,18 +16,36 @@
     <Filter Include="Source Files\Pentago">
       <UniqueIdentifier>{4b315dcf-c548-4468-8883-930834ac7efe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\minimax AI">
+      <UniqueIdentifier>{8b8c77ab-ed69-414b-a6bc-ec9e95228149}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Maths">
+      <UniqueIdentifier>{1c57c86a-bfcc-408f-b537-c3fb56d1ded6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Pentago.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Pentago</Filter>
+    </ClCompile>
+    <ClCompile Include="MyMath.cpp">
+      <Filter>Source Files\Maths</Filter>
+    </ClCompile>
+    <ClCompile Include="Minimax.cpp">
+      <Filter>Source Files\minimax AI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pentago.h">
       <Filter>Source Files\Pentago</Filter>
+    </ClInclude>
+    <ClInclude Include="Minimax.h">
+      <Filter>Source Files\minimax AI</Filter>
+    </ClInclude>
+    <ClInclude Include="MyMath.h">
+      <Filter>Source Files\Maths</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

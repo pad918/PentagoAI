@@ -23,10 +23,12 @@ namespace ptg {
 		void printBoard();
 		void setMarble(int x, int y, int val);
 		void rotateSubBoard(int x, int y, int dir);
+		void rotateSubBoard(int id, int dir);
 		void playManualGame();
 		/*TEST VAR FOR DEBUGGING AND PROFILEING*/ int looedTimes = 0;
 		int hasWon(); // borde vara privat
 		int hasWonFast();
+		int marbleAt(int x, int y);
 	};
 
 

@@ -242,6 +242,16 @@ int ptg::PentagoGame::hasWonFast()
 	return 0;
 }
 
+int ptg::PentagoGame::marbleAt(int x, int y)
+{
+	//Converts abs pos to relative (cleans code)
+
+	int subBoardYPos = (y % 3);
+	int subBoardPos = (y / 3) * 2 + (x / 3) * 1;
+	int subBoardXPos = (x % 3);
+	return subBoards[subBoardPos].marbles[3*subBoardYPos+subBoardXPos];
+}
+
 ptg::PentagoGame::PentagoGame()
 {
 
@@ -282,6 +292,12 @@ void ptg::PentagoGame::rotateSubBoard(int x, int y, int dir)
 {
 	if (x < 0 || x>1 || y < 0 || y>1) { std::cout << "incorrect board position in rotateSubBoard()\n"; return; }
 	subBoards[y * 2 + x].rotate(dir);
+}
+
+void ptg::PentagoGame::rotateSubBoard(int id, int dir)
+{
+	if (id < 0 || id>3 || dir > 1 || dir < -1 || dir == 0) { std::cout << "Incorrect board rotation in rotateSubBoard()\n"; }
+	subBoards[id].rotate(dir);
 }
 
 void ptg::PentagoGame::playManualGame()
