@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include "MyMath.h"
 
 namespace ptg {
 	

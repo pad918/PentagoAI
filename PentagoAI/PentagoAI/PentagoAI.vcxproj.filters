@@ -36,6 +36,9 @@
     <ClCompile Include="Minimax.cpp">
       <Filter>Source Files\minimax AI</Filter>
     </ClCompile>
+    <ClCompile Include="PlayGame.cpp">
+      <Filter>Source Files\Pentago</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pentago.h">
@@ -46,6 +49,9 @@
     </ClInclude>
     <ClInclude Include="MyMath.h">
       <Filter>Source Files\Maths</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayGame.h">
+      <Filter>Source Files\Pentago</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

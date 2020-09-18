@@ -162,8 +162,8 @@ int ptg::PentagoGame::hasWonFast()
 {
 	looedTimes = 0;
 	for (int y = 0; y < 6; y++) {
-		int localY = y % 3;
 		for (int x = 0; x < 6; x++) {
+			int localY = y % 3;
 			int localX = x % 3;
 			int subBoardPos = (y / 3) * 2 + (x / 3);
 			int player = subBoards[subBoardPos].marbles[localY * 3 + localX];
@@ -302,7 +302,6 @@ void ptg::PentagoGame::rotateSubBoard(int id, int dir)
 
 void ptg::PentagoGame::playManualGame()
 {
-	setMarble(0, 0, 1);
 	int hw=0;
 	int plTurn = 0;
 	for (int i = 0; i < 36; i++) {
@@ -334,5 +333,4 @@ void ptg::PentagoGame::playManualGame()
 	printBoard();
 	std::cout << "  Player: " << hw << " WON!\n";
 }
-
 

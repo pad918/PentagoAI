@@ -19,5 +19,6 @@ namespace mth {
 		Vector2 marblePos;
 		Vector2 rotation;
 		PentagoMove(Vector2 mP, Vector2 rot);
+		PentagoMove();
 	};
 }

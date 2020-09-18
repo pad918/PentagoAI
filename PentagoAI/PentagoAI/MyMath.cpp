@@ -31,3 +31,8 @@ mth::PentagoMove::PentagoMove(Vector2 mP, Vector2 rot)
 	marblePos = mP;
 	rotation = rot;
 }
+
+mth::PentagoMove::PentagoMove()
+{
+
+}
