@@ -1,8 +1,11 @@
-﻿  PlayGame.cpp
-  main.cpp
+﻿  Pentago.cpp
+c:\users\mansa\source\repos\gyarbetenn\gyarbetenn\pentagoai\pentagoai\pentago.cpp(158): warning C4552: '+': result of expression not used
+c:\users\mansa\source\repos\gyarbetenn\gyarbetenn\pentagoai\pentagoai\pentago.cpp(159): warning C4552: '+': result of expression not used
+c:\users\mansa\source\repos\gyarbetenn\gyarbetenn\pentagoai\pentagoai\pentago.cpp(278): warning C4311: 'type cast': pointer truncation from 'ptg::PentagoGame *' to 'long'
+c:\users\mansa\source\repos\gyarbetenn\gyarbetenn\pentagoai\pentagoai\pentago.cpp(278): warning C4302: 'type cast': truncation from 'ptg::PentagoGame *' to 'long'
   Generating code
-  14 of 30 functions (46.7%) were compiled, the rest were copied from previous compilation.
+  2 of 29 functions ( 6.9%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    4 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   PentagoAI.vcxproj -> C:\Users\mansa\source\repos\gyarbeteNN\gyarbeteNN\PentagoAI\x64\Release\PentagoAI.exe

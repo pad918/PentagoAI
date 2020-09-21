@@ -1,4 +1,5 @@
 ﻿#include "Minimax.h"
+#define USINGOPT1 true
 
 inline int mm::Minimax::points(int streak)
 {
@@ -9,10 +10,10 @@ inline int mm::Minimax::points(int streak)
 		| 3	| 2	|
 		| 4	| 3	|
 		| 5	|100| 
-
+		| 6	|120|
 	*/
-	if (streak == 5) {
-		return 100;
+	if (streak >= 5) {
+		return 20*streak; 
 	}
 	return streak - 1;
 
@@ -97,9 +98,8 @@ int mm::Minimax::evaluate(ptg::PentagoGame board, int player)
 
 int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int alpha, int beta, ptg::PentagoGame board)
 {
-	/*
-		One performace improvement is to not include rotations when they don't matter!
-	*/
+	testVal++;
+
 	if (depth == 0 /*Or if the game is over*/) {
 		//Return evaluation of board
 		int player1Eval = evaluate(board, 1);
@@ -113,28 +113,34 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 			for (int x = 0; x < 6; x++) {
 				//If position is empety
 				if (board.marbleAt(x, y) == 0) {
+					ptg::PentagoGame newBoard = board;
+					ptg::PentagoGame lastBoard;
 					for (int i = 0; i < 8; i++) {
 						if (board.marbleAt(x, y) == 0) {
-							ptg::PentagoGame newBoard = board;
+							newBoard = board;
 							mth::PentagoMove move(mth::Vector2(x, y), mth::Vector2(i / 2, (i % 2 == 0) ? 1 : -1));
 							if (move.marblePos.x == 4 && move.marblePos.y == 2 && move.rotation.x == 0 && move.marblePos.y == 1) {
 								std::cout << "NU SKER DET!\n";
 							}
 							newBoard.setMarble(x, y, 1);
 							newBoard.rotateSubBoard(move.rotation.x, move.rotation.y);
-							int eval = minimax(move, depth - 1, 2, alpha, beta, newBoard);
-							if (maxEvaluation < eval) {
-								maxEvaluation = eval;
-								if(depth== maxDepth)
-									bestMove = move;
-								//TEST: std::cout << "Depth = " << depth << " | move = " << bestMove.marblePos.x << " " << bestMove.marblePos.y << " | rot: " << bestMove.rotation.x << " " << bestMove.rotation.y << "\n";
-								testVal = 1;
-							}
-							if (alpha < eval) {
-								alpha = eval;
-							}
-							if (beta <= alpha) {
-								break;
+
+							if (!USINGOPT1 || !(lastBoard == newBoard)) {
+
+								int eval = minimax(move, depth - 1, 2, alpha, beta, newBoard);
+								if (maxEvaluation < eval) {
+									maxEvaluation = eval;
+									if (depth == maxDepth)
+										bestMove = move;
+									//TEST: std::cout << "Depth = " << depth << " | move = " << bestMove.marblePos.x << " " << bestMove.marblePos.y << " | rot: " << bestMove.rotation.x << " " << bestMove.rotation.y << "\n";
+								}
+								if (alpha < eval) {
+									alpha = eval;
+								}
+								if (beta <= alpha) {
+									break;
+								}
+								lastBoard = newBoard;
 							}
 						}
 					}
@@ -149,22 +155,26 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 			for (int x = 0; x < 6; x++) {
 				//If position is empety
 				if (board.marbleAt(x, y) == 0) {
+					ptg::PentagoGame newBoard = board;
+					ptg::PentagoGame lastBoard;
 					for (int i = 0; i < 8; i++) {
 						if (board.marbleAt(x, y) == 0) {
-							ptg::PentagoGame newBoard = board;
+							newBoard = board;
 							mth::PentagoMove move(mth::Vector2(x, y), mth::Vector2(i / 2, (i % 2 == 0) ? 1 : -1));
 							newBoard.setMarble(x, y, 2);
 							newBoard.rotateSubBoard(move.rotation.x, move.rotation.y);
-							int eval = minimax(move, depth - 1, 1, alpha, beta, newBoard);
-							if (minEvaluation > eval) {
-								minEvaluation = eval;
-								testVal = -1;
-							}
-							if (beta > eval) {
-								beta = eval;
-							}
-							if (beta <= alpha) {
-								break;
+							if (!USINGOPT1 || !(lastBoard == newBoard)) {
+								int eval = minimax(move, depth - 1, 1, alpha, beta, newBoard);
+								if (minEvaluation > eval) {
+									minEvaluation = eval;
+								}
+								if (beta > eval) {
+									beta = eval;
+								}
+								if (beta <= alpha) {
+									break;
+								}
+								lastBoard = newBoard;
 							}
 						}
 					}

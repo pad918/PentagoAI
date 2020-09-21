@@ -3,7 +3,7 @@
 ptg::PentagoSubBoard::PentagoSubBoard()
 {
 	//Set all marbles poitions to zero, meaning no marble
-	memset(marbles, 0, sizeof(unsigned char)*9);
+	memset(marbles,		0, sizeof(unsigned char) * 9);
 }
 
 void ptg::PentagoSubBoard::printBoard()
@@ -50,6 +50,25 @@ void ptg::PentagoSubBoard::rotate(int dir)
 		marbles[8] = tmp[6];
 	}
 
+}
+
+uint32_t ptg::PentagoSubBoard::getHash()
+{
+	uint32_t hash = 0;
+	for (int i = 0; i < 9; i++) {
+		switch (marbles[i])
+		{
+		case 1:
+			hash |= 1UL << (2*i);
+			testVal++;
+			break;
+		case 2:
+			hash |= 1UL << (2 * i + 1);
+			testVal--;
+			break;
+		}
+	}
+	return hash;
 }
 
 int ptg::PentagoGame::maxMarblesInARow(int player, int total, int dir, int x, int y)
@@ -252,6 +271,15 @@ int ptg::PentagoGame::marbleAt(int x, int y)
 	return subBoards[subBoardPos].marbles[3*subBoardYPos+subBoardXPos];
 }
 
+long ptg::PentagoGame::getHash()
+{
+	long hash = 0;
+	for (int i = 0; i < 36; i++) {
+		hash = (long)this;
+	}
+	return hash;
+}
+
 ptg::PentagoGame::PentagoGame()
 {
 
@@ -334,3 +362,10 @@ void ptg::PentagoGame::playManualGame()
 	std::cout << "  Player: " << hw << " WON!\n";
 }
 
+bool ptg::operator==(const PentagoGame& l1, const PentagoGame& l2)
+{
+	if (0==memcmp(l1.subBoards, l2.subBoards, sizeof(l1.subBoards))) {
+		return true;
+	}
+	return false;
+}

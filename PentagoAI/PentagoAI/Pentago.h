@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <stdint.h>
 #include "MyMath.h"
 
 namespace ptg {
@@ -8,10 +9,12 @@ namespace ptg {
 	private:
 		
 	public:
+		int testVal = 0;
 		PentagoSubBoard();
 		void printBoard(); // For debugging
 		void rotate(int dir);
-		unsigned char marbles[9];
+		unsigned char marbles[9]; 
+		uint32_t getHash();
 	};
 
 	class PentagoGame {
@@ -30,6 +33,9 @@ namespace ptg {
 		int hasWon(); // borde vara privat
 		int hasWonFast();
 		int marbleAt(int x, int y);
+		long getHash(); //Not finnished...
+
+	friend bool operator==(const PentagoGame& l1, const PentagoGame& l2);
 	};
 
 

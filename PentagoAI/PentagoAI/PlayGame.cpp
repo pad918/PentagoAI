@@ -49,6 +49,10 @@ void GameHandler::playAgainstMinimax(ptg::PentagoGame &board, int depth)
 		}
 		board.setMarble(ai.bestMove.marblePos.x, ai.bestMove.marblePos.y, 1);
 		board.rotateSubBoard(ai.bestMove.rotation.x, ai.bestMove.rotation.y);
+		hw = board.hasWonFast();
+		if (hw != 0) {
+			break;
+		}
 	}
 	
 	std::cout << "\n\n";
