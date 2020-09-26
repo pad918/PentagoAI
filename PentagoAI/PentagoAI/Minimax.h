@@ -1,6 +1,7 @@
-#pragma once
+﻿#pragma once
 #include "MyMath.h"
 #include "Pentago.h"
+#include "Hash.h"
 
 namespace mm{
 
@@ -8,6 +9,8 @@ namespace mm{
 	private:
 		int points(int streak);
 		int debugVal = 0;
+		
+		
 	public:
 		Minimax();
 		int evaluate(ptg::PentagoGame board, int player); // Should be private
@@ -15,6 +18,9 @@ namespace mm{
 		int maxDepth=0;
 		mth::PentagoMove bestMove;
 		int testVal = 0;
+		void clearTables();
+		HashTable hashTableMax; // SHOULD BE PRIVATE
+		HashTable hashTableMin; // SHOULD BE PRIVATE
 	};
 
 }

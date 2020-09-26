@@ -1,10 +1,2 @@
-﻿  Minimax.cpp
-  Pentago.cpp
-c:\users\mansa\source\repos\gyarbetenn\gyarbetenn\pentagoai\pentagoai\pentago.cpp(158): warning C4552: '+': result of expression not used
-c:\users\mansa\source\repos\gyarbetenn\gyarbetenn\pentagoai\pentagoai\pentago.cpp(159): warning C4552: '+': result of expression not used
-c:\users\mansa\source\repos\gyarbetenn\gyarbetenn\pentagoai\pentagoai\pentago.cpp(278): warning C4311: 'type cast': pointer truncation from 'ptg::PentagoGame *' to 'long'
-c:\users\mansa\source\repos\gyarbetenn\gyarbetenn\pentagoai\pentagoai\pentago.cpp(278): warning C4302: 'type cast': truncation from 'ptg::PentagoGame *' to 'long'
-  PlayGame.cpp
-  main.cpp
-  Generating Code...
+﻿  PlayGame.cpp
   PentagoAI.vcxproj -> C:\Users\mansa\source\repos\gyarbeteNN\gyarbeteNN\PentagoAI\x64\Debug\PentagoAI.exe

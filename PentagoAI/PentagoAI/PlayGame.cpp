@@ -15,7 +15,7 @@ void GameHandler::playAgainstMinimax(ptg::PentagoGame &board, int depth)
 		//Player move
 		system("cls"); //REMOVE SHITTY WINDOWS ONLY SHIT!
 		board.printBoard();
-		std::cout << "\n \n AI points: " << aiPoints << "\n\n";
+		std::cout << "\n \n AI BUFFER: " << (ai.hashTableMax.hashList.size() + ai.hashTableMin.hashList.size()) << "\n\n";
 		int x, y;
 		std::cout << "Player's turn. " << "| Set marble: x:y : ";
 		std::cin >> x >> y;
@@ -40,7 +40,7 @@ void GameHandler::playAgainstMinimax(ptg::PentagoGame &board, int depth)
 		board.printBoard();
 		std::cout << "\n";
 		std::cout << "minimax AI's turn...";
-		aiPoints = ai.minimax(mth::PentagoMove(), depth, 1, -1000, 1000, board);
+		aiPoints = ai.minimax(mth::PentagoMove(), depth, 1, -1000, 1000, board); // player = 1
 		aiPoints = ai.testVal;
 		if (board.marbleAt(ai.bestMove.marblePos.x, ai.bestMove.marblePos.y) != 0) {
 			std::cout << "PLACING OVER EXISTING MARBLE...\n";

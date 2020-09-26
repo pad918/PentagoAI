@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdint.h>
 #include "MyMath.h"
+#include "Hash.h"
 
 namespace ptg {
 	
@@ -33,7 +34,7 @@ namespace ptg {
 		int hasWon(); // borde vara privat
 		int hasWonFast();
 		int marbleAt(int x, int y);
-		long getHash(); //Not finnished...
+		Hash128 getHash(); //Not tested...
 
 	friend bool operator==(const PentagoGame& l1, const PentagoGame& l2);
 	};

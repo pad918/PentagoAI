@@ -271,13 +271,11 @@ int ptg::PentagoGame::marbleAt(int x, int y)
 	return subBoards[subBoardPos].marbles[3*subBoardYPos+subBoardXPos];
 }
 
-long ptg::PentagoGame::getHash()
+Hash128 ptg::PentagoGame::getHash()
 {
-	long hash = 0;
-	for (int i = 0; i < 36; i++) {
-		hash = (long)this;
-	}
-	return hash;
+	uint64_t bigWord   = ((uint64_t)subBoards[0].getHash() << 32) + subBoards[1].getHash();
+	uint64_t smallWord = ((uint64_t)subBoards[2].getHash() << 32) + subBoards[3].getHash();
+	return Hash128(bigWord, smallWord);
 }
 
 ptg::PentagoGame::PentagoGame()

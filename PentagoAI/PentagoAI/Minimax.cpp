@@ -1,5 +1,5 @@
 ﻿#include "Minimax.h"
-#define USINGOPT1 true
+#define USINGHASHTABLE true
 
 inline int mm::Minimax::points(int streak)
 {
@@ -100,7 +100,7 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 {
 	testVal++;
 
-	if (depth == 0 /*Or if the game is over*/) {
+	if (depth == 0 || board.hasWonFast()!=0) {
 		//Return evaluation of board
 		int player1Eval = evaluate(board, 1);
 		int player2Eval = evaluate(board, 2);
@@ -108,40 +108,45 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 		return (player1Eval - player2Eval);
 	}
 	if(player == 1){
-		int maxEvaluation = -1000;
+		int maxEvaluation = -10000;
 		for (int y = 0; y < 6; y++) {
 			for (int x = 0; x < 6; x++) {
 				//If position is empety
 				if (board.marbleAt(x, y) == 0) {
 					ptg::PentagoGame newBoard = board;
-					ptg::PentagoGame lastBoard;
 					for (int i = 0; i < 8; i++) {
 						if (board.marbleAt(x, y) == 0) {
 							newBoard = board;
 							mth::PentagoMove move(mth::Vector2(x, y), mth::Vector2(i / 2, (i % 2 == 0) ? 1 : -1));
-							if (move.marblePos.x == 4 && move.marblePos.y == 2 && move.rotation.x == 0 && move.marblePos.y == 1) {
-								std::cout << "NU SKER DET!\n";
-							}
 							newBoard.setMarble(x, y, 1);
 							newBoard.rotateSubBoard(move.rotation.x, move.rotation.y);
 
-							if (!USINGOPT1 || !(lastBoard == newBoard)) {
+							Hash128 hash = newBoard.getHash();
 
-								int eval = minimax(move, depth - 1, 2, alpha, beta, newBoard);
-								if (maxEvaluation < eval) {
-									maxEvaluation = eval;
-									if (depth == maxDepth)
-										bestMove = move;
-									//TEST: std::cout << "Depth = " << depth << " | move = " << bestMove.marblePos.x << " " << bestMove.marblePos.y << " | rot: " << bestMove.rotation.x << " " << bestMove.rotation.y << "\n";
-								}
-								if (alpha < eval) {
-									alpha = eval;
-								}
-								if (beta <= alpha) {
-									break;
-								}
-								lastBoard = newBoard;
+							int eval;
+							if (USINGHASHTABLE && depth <= 3 && hashTableMax.isInTable(hash)) {
+								eval = hashTableMax.getVal(hash);
 							}
+							else
+							{
+								eval = minimax(move, depth - 1, 2, alpha, beta, newBoard); 
+								if (USINGHASHTABLE && depth == 3) {
+									hashTableMax.addElement(hash, eval);
+								}
+							}
+
+							if (maxEvaluation < eval) {
+								maxEvaluation = eval;
+								if (depth == maxDepth) {
+									bestMove = move;
+									std::cout << "Found best move: " << eval << " | hash = " << hash.val[0] << " " << hash.val[1] << "\n";
+								}
+								
+							}
+							alpha = (eval > alpha) ? eval : alpha;
+							if (beta <= alpha) {
+								break;
+							}	
 						}
 					}
 				}
@@ -150,32 +155,39 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 		return maxEvaluation;
 	}
 	else if (player == 2) {
-		int minEvaluation = 1000;
+		int minEvaluation = 10000;
 		for (int y = 0; y < 6; y++) {
 			for (int x = 0; x < 6; x++) {
 				//If position is empety
 				if (board.marbleAt(x, y) == 0) {
 					ptg::PentagoGame newBoard = board;
-					ptg::PentagoGame lastBoard;
 					for (int i = 0; i < 8; i++) {
 						if (board.marbleAt(x, y) == 0) {
 							newBoard = board;
 							mth::PentagoMove move(mth::Vector2(x, y), mth::Vector2(i / 2, (i % 2 == 0) ? 1 : -1));
 							newBoard.setMarble(x, y, 2);
 							newBoard.rotateSubBoard(move.rotation.x, move.rotation.y);
-							if (!USINGOPT1 || !(lastBoard == newBoard)) {
-								int eval = minimax(move, depth - 1, 1, alpha, beta, newBoard);
-								if (minEvaluation > eval) {
-									minEvaluation = eval;
-								}
-								if (beta > eval) {
-									beta = eval;
-								}
-								if (beta <= alpha) {
-									break;
-								}
-								lastBoard = newBoard;
+						
+							Hash128 hash = newBoard.getHash();
+							int eval;
+							if (USINGHASHTABLE && depth <= 3 && hashTableMin.isInTable(hash)) {
+								eval = hashTableMin.getVal(hash);
 							}
+							else
+							{
+								eval = minimax(move, depth - 1, 1, alpha, beta, newBoard);
+								if (USINGHASHTABLE && depth == 3) {
+									hashTableMin.addElement(hash, eval);
+								}
+							}
+							if (minEvaluation > eval) {
+								minEvaluation = eval;
+							}
+							beta = (eval < beta) ? eval : beta;
+							if (beta <= alpha) {
+								break;
+							}
+							
 						}
 					}
 				}
@@ -183,5 +195,13 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 		}
 		return minEvaluation;
 	}
-	return 0;
+	return 1337; // To be removed
+}
+
+void mm::Minimax::clearTables()
+{
+	hashTableMax.hashList.clear();
+	hashTableMin.hashList.clear();
+	hashTableMax.valueList.clear();
+	hashTableMin.valueList.clear();
 }

@@ -115,6 +115,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Hash.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Minimax.cpp" />
     <ClCompile Include="MyMath.cpp" />
@@ -122,6 +123,7 @@
     <ClCompile Include="PlayGame.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Hash.h" />
     <ClInclude Include="Minimax.h" />
     <ClInclude Include="MyMath.h" />
     <ClInclude Include="Pentago.h" />
