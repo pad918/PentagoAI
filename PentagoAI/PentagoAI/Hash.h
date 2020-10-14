@@ -23,5 +23,6 @@ public:
 	void addElement(Hash128 hash, int value);
 	int getVal(Hash128 hash);
 	std::vector<Hash128> hashList; 
+	std::vector<int> lowestDepth;
 	std::vector<int> valueList;
 };

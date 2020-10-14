@@ -22,6 +22,9 @@
     <Filter Include="Source Files\Maths">
       <UniqueIdentifier>{1c57c86a-bfcc-408f-b537-c3fb56d1ded6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\NeuralNetwork">
+      <UniqueIdentifier>{e04ceee9-cfa0-4b16-b6cb-4a06c531151b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -42,6 +45,9 @@
     <ClCompile Include="Hash.cpp">
       <Filter>Source Files\minimax AI</Filter>
     </ClCompile>
+    <ClCompile Include="NeuralNetwork.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pentago.h">
@@ -58,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="Hash.h">
       <Filter>Source Files\minimax AI</Filter>
+    </ClInclude>
+    <ClInclude Include="NeuralNetwork.h">
+      <Filter>Source Files\NeuralNetwork</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

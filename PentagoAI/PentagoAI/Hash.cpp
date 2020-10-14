@@ -67,6 +67,7 @@ void HashTable::addElement(Hash128 hash, int value)
 	}
 	hashList.insert(hashList.begin() + position, hash);
 	valueList.insert(valueList.begin() + position, value);
+	lowestDepth.insert(lowestDepth.begin() + position, value);
 }
 
 int HashTable::getVal(Hash128 hash)

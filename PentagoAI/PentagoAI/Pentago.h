@@ -31,10 +31,10 @@ namespace ptg {
 		void rotateSubBoard(int id, int dir);
 		void playManualGame();
 		/*TEST VAR FOR DEBUGGING AND PROFILEING*/ int looedTimes = 0;
-		int hasWon(); // borde vara privat
+		int hasWon();
 		int hasWonFast();
 		int marbleAt(int x, int y);
-		Hash128 getHash(); //Not tested...
+		Hash128 getHash(int depth);
 
 	friend bool operator==(const PentagoGame& l1, const PentagoGame& l2);
 	};

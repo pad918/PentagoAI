@@ -6,22 +6,23 @@ inline int mm::Minimax::points(int streak)
 	/* Subject to change
 	
 		|str|pts|
-		| 2	| 1	|
-		| 3	| 2	|
-		| 4	| 3	|
+		| 2	| 0	|
+		| 3	| 1	|
+		| 4	| 2	|
 		| 5	|100| 
 		| 6	|120|
 	*/
 	if (streak >= 5) {
-		return 20*streak; 
+		return 20 * streak; 
 	}
-	return streak - 1;
+	return streak - 2;
 
 }
 
 mm::Minimax::Minimax()
 {
 	//Init
+	
 }
 
 int mm::Minimax::evaluate(ptg::PentagoGame board, int player)
@@ -121,10 +122,10 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 							newBoard.setMarble(x, y, 1);
 							newBoard.rotateSubBoard(move.rotation.x, move.rotation.y);
 
-							Hash128 hash = newBoard.getHash();
+							Hash128 hash = newBoard.getHash(depth);
 
 							int eval;
-							if (USINGHASHTABLE && depth <= 3 && hashTableMax.isInTable(hash)) {
+							if (USINGHASHTABLE && depth == 3 && hashTableMax.isInTable(hash)) {
 								eval = hashTableMax.getVal(hash);
 							}
 							else
@@ -168,9 +169,9 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 							newBoard.setMarble(x, y, 2);
 							newBoard.rotateSubBoard(move.rotation.x, move.rotation.y);
 						
-							Hash128 hash = newBoard.getHash();
+							Hash128 hash = newBoard.getHash(depth);
 							int eval;
-							if (USINGHASHTABLE && depth <= 3 && hashTableMin.isInTable(hash)) {
+							if (USINGHASHTABLE && depth == 3 && hashTableMin.isInTable(hash)) { // ATT GÖRA, mindre ska kunna använda större...
 								eval = hashTableMin.getVal(hash);
 							}
 							else

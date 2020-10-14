@@ -208,7 +208,7 @@ int ptg::PentagoGame::hasWonFast()
 				if (x < 2) {
 					localY = y % 3;
 					localX = (x + 4) % 3;
-					subBoardPos = ((y + 4) / 3) * 2 + (x / 3);
+					subBoardPos = ((y) / 3) * 2 + ((x + 4) / 3);
 					if (player == subBoards[subBoardPos].marbles[localY * 3 + localX]) {
 						//Testa alla i mitten...
 						bool knowItIsNot5 = false;
@@ -271,9 +271,10 @@ int ptg::PentagoGame::marbleAt(int x, int y)
 	return subBoards[subBoardPos].marbles[3*subBoardYPos+subBoardXPos];
 }
 
-Hash128 ptg::PentagoGame::getHash()
+Hash128 ptg::PentagoGame::getHash(int depth)
 {
 	uint64_t bigWord   = ((uint64_t)subBoards[0].getHash() << 32) + subBoards[1].getHash();
+	bigWord += (uint64_t)depth << 60; //borde fungera
 	uint64_t smallWord = ((uint64_t)subBoards[2].getHash() << 32) + subBoards[3].getHash();
 	return Hash128(bigWord, smallWord);
 }
@@ -331,7 +332,7 @@ void ptg::PentagoGame::playManualGame()
 	int hw=0;
 	int plTurn = 0;
 	for (int i = 0; i < 36; i++) {
-		system("cls"); //REMOVE SHITTY WINDOWS ONLY SHIT!
+		system("cls"); //REMOVE, WINDOWS ONLY!
 		printBoard();
 		std::cout << "\n";
 		int x, y;
@@ -342,7 +343,7 @@ void ptg::PentagoGame::playManualGame()
 		if (hw != 0) {
 			break;
 		}
-		system("cls"); //REMOVE SHITTY WINDOWS ONLY SHIT!
+		system("cls"); //REMOVE, WINDOWS ONLY!
 		printBoard();
 		std::cout << "\n";
 		int dir;

@@ -84,6 +84,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)eigen-master</AdditionalIncludeDirectories>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -108,6 +111,9 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)eigen-master</AdditionalIncludeDirectories>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -119,6 +125,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Minimax.cpp" />
     <ClCompile Include="MyMath.cpp" />
+    <ClCompile Include="NeuralNetwork.cpp" />
     <ClCompile Include="Pentago.cpp" />
     <ClCompile Include="PlayGame.cpp" />
   </ItemGroup>
@@ -126,6 +133,7 @@
     <ClInclude Include="Hash.h" />
     <ClInclude Include="Minimax.h" />
     <ClInclude Include="MyMath.h" />
+    <ClInclude Include="NeuralNetwork.h" />
     <ClInclude Include="Pentago.h" />
     <ClInclude Include="PlayGame.h" />
   </ItemGroup>
