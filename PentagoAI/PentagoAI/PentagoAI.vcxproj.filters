@@ -46,7 +46,7 @@
       <Filter>Source Files\minimax AI</Filter>
     </ClCompile>
     <ClCompile Include="NeuralNetwork.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\NeuralNetwork</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

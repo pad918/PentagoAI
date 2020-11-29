@@ -11,11 +11,15 @@
 //865 lines 2020-09-26
 
 int main() {
+	
 	std::vector<int> layerSizes; 
 	layerSizes.push_back(3);
 	layerSizes.push_back(5);
 	layerSizes.push_back(3);
 	NeuralNetwork nn(layerSizes);
+	nn.loadNetwork("test.txt");
+	nn.saveNetwork("test1.txt");
+
 	/*
 	srand(0);
 	ptg::PentagoGame pentagoBoard;
