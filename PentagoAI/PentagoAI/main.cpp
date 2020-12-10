@@ -11,14 +11,19 @@
 //865 lines 2020-09-26
 
 int main() {
-	
+	srand(time(NULL));
 	std::vector<int> layerSizes; 
-	layerSizes.push_back(3);
-	layerSizes.push_back(5);
-	layerSizes.push_back(3);
+	layerSizes.push_back(2);
+	layerSizes.push_back(10);
+	layerSizes.push_back(2);
 	NeuralNetwork nn(layerSizes);
-	nn.loadNetwork("test.txt");
-	nn.saveNetwork("test1.txt");
+	//nn.loadNetwork("smallTest.txt");
+	//nn.saveNetwork("nameless.txt");
+	Eigen::MatrixXd inputs(2, 1);
+	inputs(0, 0) = 0.0f;
+	inputs(1, 0) = 0.33f;
+	nn.setInputs(inputs);
+	nn.calculateOutputs();
 
 	/*
 	srand(0);

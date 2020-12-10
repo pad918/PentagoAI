@@ -2,14 +2,22 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <chrono>
 
 void NeuralNetwork::sigmoid(Eigen::MatrixXd & input) //Inte testad
 {
-	for (int r = 0; r < input.rows(); r++) {
-		for (int c = 0; c < inputs.cols(); c++) {
-			input(r, c) = 1.0f / (1 + std::pow(2.7182818284f, -input(r, c)));
-		}
+
+	//Borde kunna använda vectorization här.
+	
+	for (int i = 0; i < input.rows()*inputs.cols(); i++) {
+		input.array()(i) = 1.0f / (1 + std::pow(2.7182818284f, -input.array()(i)));;
 	}
+	
+}
+
+void NeuralNetwork::printMatrix(Eigen::MatrixXd matrix)
+{
+	std::cout << matrix << "\n";
 }
 
 NeuralNetwork::NeuralNetwork(std::vector<int> layerSizes)
@@ -29,18 +37,10 @@ NeuralNetwork::NeuralNetwork(std::vector<int> layerSizes)
 
 		//Randomize default weight values. 
 		weights[i].setRandom();
-		Eigen::MatrixXd allOnesWeight(layerSizes[i + 1], layerSizes[i]);
-		allOnesWeight.setOnes();
-		weights[i] += allOnesWeight;
-		weights[i] *= 0.5f;
-		std::cout << "Weight " << i << " = \n" << weights[i] << "\n";
+		//std::cout << "Weight " << i << " = \n" << weights[i] << "\n";
 
-		//randomize dfault bias values.
-		biases[i].setRandom();
-		Eigen::MatrixXd allOnesBias(layerSizes[i + 1], 1);
-		allOnesBias.setOnes();
-		biases[i] += allOnesBias;
-		biases[i] *= 0.5f;
+		//Bias values are zero from the start.
+		biases[i].setZero();
 	}
 }
 
@@ -71,6 +71,20 @@ double NeuralNetwork::evaluate() // TO DO: add bias to sigmoid
 
 
 	return dif.sum();
+}
+
+Eigen::MatrixXd NeuralNetwork::calculateOutputs() // Add biases
+{
+	Eigen::MatrixXd nextLayer;
+	nextLayer.noalias() = weights[0] * inputs + biases[0];
+	sigmoid(nextLayer);
+	for (int i = 1; i < networkLayerSizes.size() - 1; i++) {
+		nextLayer = weights[i] * nextLayer + biases[i];
+		sigmoid(nextLayer);
+	}
+	std::cout << "Outputs: \n";
+	printMatrix(nextLayer);
+	return nextLayer;
 }
 
 void NeuralNetwork::saveNetwork(std::string name)
@@ -199,4 +213,32 @@ void NeuralNetwork::loadNetwork(std::string name)
 		}
 	}
 
+}
+
+bool NeuralNetwork::setInputs(Eigen::MatrixXd inputsValues)
+{
+	if (inputsValues.rows() != networkLayerSizes[0] || inputsValues.cols() != 1) {
+		std::cout << "Error: input values are formated incorrecly. (cols!=1 or rows != networks first layer size)\n";
+		return false;
+	}
+	inputs = inputsValues;
+	return true;
+}
+
+void NeuralNetwork::benchmarkSigmoid(int times)
+{
+	Eigen::MatrixXd nextLayer;
+	nextLayer.noalias() = weights[0] * inputs + biases[0];
+	sigmoid(nextLayer);
+	for (int i = 1; i < networkLayerSizes.size() - 2; i++) {
+		nextLayer = weights[i] * nextLayer + biases[i];
+		sigmoid(nextLayer);
+	}
+	auto t1 = std::chrono::high_resolution_clock::now();
+	for (int i = 0; i < times; i++) {
+		sigmoid(nextLayer);
+	}
+	auto t2 = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+	std::cout << "Benchmark complete: " << times << " sigmoids in " << duration << "ms\n";
 }

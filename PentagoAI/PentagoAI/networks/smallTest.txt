@@ -1,0 +1,14 @@
+[NN saver V0.001]
+[LayerSizes]
+2
+1
+2
+[Weights]
+0.5
+0.5
+0.5
+0.5
+[Biases]
+0
+0
+0
