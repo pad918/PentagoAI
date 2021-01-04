@@ -6,13 +6,17 @@
 
 class NeuralNetwork {
 private:
-	//Object and vars
+	//Objects and vars
 	std::vector<Eigen::MatrixXd> weights;
-	std::vector<Eigen::MatrixXd> biases; //Inte implmenteread än
-	Eigen::MatrixXd inputs;
+	std::vector<Eigen::MatrixXd> biases;
+	std::vector<Eigen::MatrixXd> neurons; 
+	Eigen::MatrixXd inputs; // To be removed, replaced by neurons[0]
 	std::vector<int> networkLayerSizes;
+
 	//Functions
 	void sigmoid(Eigen::MatrixXd & input); 
+	float calculateError(Eigen::MatrixXd output, Eigen::MatrixXd & target); //Inte testad
+	
 
 	//Debug functions:
 	void printMatrix(Eigen::MatrixXd matrix);
@@ -24,6 +28,7 @@ public:
 	void saveNetwork(std::string name); // Kan förekomma buggar
 	void loadNetwork(std::string name);	// Kan förekomma buggar
 	bool setInputs(Eigen::MatrixXd inputsValues);
+	void backpropogation();
 
 	//Debug functions:
 	void benchmarkSigmoid(int times);

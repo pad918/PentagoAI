@@ -11,7 +11,7 @@
 //865 lines 2020-09-26
 
 int main() {
-	srand(time(NULL));
+	//srand(time(NULL));
 	std::vector<int> layerSizes; 
 	layerSizes.push_back(2);
 	layerSizes.push_back(10);
@@ -23,8 +23,10 @@ int main() {
 	inputs(0, 0) = 0.0f;
 	inputs(1, 0) = 0.33f;
 	nn.setInputs(inputs);
-	nn.calculateOutputs();
-
+	for (int i = 0; i < 10; i++) {
+		nn.calculateOutputs();
+		nn.backpropogation();
+	}
 	/*
 	srand(0);
 	ptg::PentagoGame pentagoBoard;

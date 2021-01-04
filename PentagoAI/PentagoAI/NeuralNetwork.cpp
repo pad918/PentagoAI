@@ -15,6 +15,45 @@ void NeuralNetwork::sigmoid(Eigen::MatrixXd & input) //Inte testad
 	
 }
 
+float NeuralNetwork::calculateError(Eigen::MatrixXd output, Eigen::MatrixXd & target) //KANSKE LÅNGSAM!
+{
+	output = output - target;
+	output = output.array().pow(2);
+	output *= 0.5f;
+	return output.sum();
+}
+
+void NeuralNetwork::backpropogation()
+{
+	Eigen::MatrixXd targets; //get targets here!!!!
+	targets = Eigen::MatrixXd(2, 1);
+	targets(0, 0) = 0.0f;
+	targets(1, 0) = 1.0f;
+
+	Eigen::MatrixXd outputs = calculateOutputs();
+	float error = calculateError(outputs, targets);
+
+	//Output layer is different from other layers.
+	//std::cout << "DELATAS\n";
+	for (int o = 0; o < networkLayerSizes.back(); o++) { //
+
+		float nodeDelta = outputs(o, 0) * (1.0f - outputs(o, 0)) * (outputs(o, 0) - targets(o, 0));
+
+		for (int h = 0; h < networkLayerSizes[networkLayerSizes.size()-2]; h++) { //Borde vara -2
+
+			float delta = nodeDelta * neurons[neurons.size() - 2](h, 0);
+			weights.back()(o, h) -= delta * 0.5f;
+			//std::cout << delta << "\n";
+		}
+	}
+	
+	//For the rest of the layers
+	for (int lay = networkLayerSizes.size() - 2; lay > 0; lay--) {
+		
+	}
+	
+}
+
 void NeuralNetwork::printMatrix(Eigen::MatrixXd matrix)
 {
 	std::cout << matrix << "\n";
@@ -42,9 +81,15 @@ NeuralNetwork::NeuralNetwork(std::vector<int> layerSizes)
 		//Bias values are zero from the start.
 		biases[i].setZero();
 	}
+
+	//Add neurons
+	for (int &size : layerSizes) {
+		neurons.push_back(Eigen::MatrixXd(size, 1));
+		neurons.back().setZero();
+	}
 }
 
-double NeuralNetwork::evaluate() // TO DO: add bias to sigmoid 
+double NeuralNetwork::evaluate() 
 {
 	Eigen::MatrixXd nextLayer;
 	nextLayer.noalias() = weights[0] * inputs;
@@ -73,18 +118,17 @@ double NeuralNetwork::evaluate() // TO DO: add bias to sigmoid
 	return dif.sum();
 }
 
-Eigen::MatrixXd NeuralNetwork::calculateOutputs() // Add biases
+Eigen::MatrixXd NeuralNetwork::calculateOutputs() 
 {
-	Eigen::MatrixXd nextLayer;
-	nextLayer.noalias() = weights[0] * inputs + biases[0];
-	sigmoid(nextLayer);
-	for (int i = 1; i < networkLayerSizes.size() - 1; i++) {
-		nextLayer = weights[i] * nextLayer + biases[i];
-		sigmoid(nextLayer);
+	
+	for (int i = 1; i < networkLayerSizes.size(); i++) {
+		neurons[i] = weights[i-1] * neurons[i-1] + biases[i-1];
+		sigmoid(neurons[i]);
 	}
 	std::cout << "Outputs: \n";
-	printMatrix(nextLayer);
-	return nextLayer;
+	printMatrix(neurons.back());
+	return neurons.back();
+	
 }
 
 void NeuralNetwork::saveNetwork(std::string name)
@@ -221,7 +265,7 @@ bool NeuralNetwork::setInputs(Eigen::MatrixXd inputsValues)
 		std::cout << "Error: input values are formated incorrecly. (cols!=1 or rows != networks first layer size)\n";
 		return false;
 	}
-	inputs = inputsValues;
+	neurons[0] = inputsValues;
 	return true;
 }
 
