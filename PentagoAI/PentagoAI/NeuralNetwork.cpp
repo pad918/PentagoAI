@@ -4,7 +4,7 @@
 #include <string>
 #include <chrono>
 
-void NeuralNetwork::sigmoid(Eigen::MatrixXd & input) //Inte testad
+void NeuralNetwork::sigmoid(Eigen::MatrixXd & input) //Testad
 {
 
 	//Borde kunna använda vectorization här.
@@ -13,6 +13,16 @@ void NeuralNetwork::sigmoid(Eigen::MatrixXd & input) //Inte testad
 		input.array()(i) = 1.0f / (1 + std::pow(2.7182818284f, -input.array()(i)));;
 	}
 	
+}
+
+void NeuralNetwork::sigmoidDerivative(Eigen::MatrixXd & input) //Testad
+{
+	sigmoid(input);
+	Eigen::MatrixXd allOnes = input; // För att få rätt storlek
+	allOnes.setOnes();
+	Eigen::MatrixXd output = allOnes - input;
+	output.array() = output.array() * input.array();
+	input = output;
 }
 
 float NeuralNetwork::calculateError(Eigen::MatrixXd output, Eigen::MatrixXd & target) //KANSKE LÅNGSAM!
@@ -30,28 +40,41 @@ void NeuralNetwork::backpropogation()
 	targets(0, 0) = 0.0f;
 	targets(1, 0) = 1.0f;
 
+	
 	Eigen::MatrixXd outputs = calculateOutputs();
-	float error = calculateError(outputs, targets);
-
-	//Output layer is different from other layers.
-	//std::cout << "DELATAS\n";
-	for (int o = 0; o < networkLayerSizes.back(); o++) { //
-
-		float nodeDelta = outputs(o, 0) * (1.0f - outputs(o, 0)) * (outputs(o, 0) - targets(o, 0));
-
-		for (int h = 0; h < networkLayerSizes[networkLayerSizes.size()-2]; h++) { //Borde vara -2
-
-			float delta = nodeDelta * neurons[neurons.size() - 2](h, 0);
-			weights.back()(o, h) -= delta * 0.5f;
-			//std::cout << delta << "\n";
-		}
-	}
 	
-	//For the rest of the layers
-	for (int lay = networkLayerSizes.size() - 2; lay > 0; lay--) {
-		
-	}
+	//print total cost
+	Eigen::MatrixXd cost = targets - outputs;
+	cost = cost.array().pow(2);
+	cost *= 0.5f;
+	std::cout << "Cost sum = " << cost.sum() << "\n";
+
+	Eigen::MatrixXd outputError = targets - outputs; // Eo
+	Eigen::MatrixXd outputInput = weights.back() * neurons[neurons.size()-2]; // Zo borde vara -2
+	sigmoidDerivative(outputInput);
+	outputError.array() = outputError.array() * outputInput.array();
 	
+	//std::cout << "Output layer errors = \n"; // inte testad
+	//printMatrix(outputError);
+
+	//Test 
+	Eigen::MatrixXd weightDerivate = outputError * neurons[neurons.size() - 2].transpose();
+	weights.back() += weightDerivate * 0.1f;
+
+	//Hidden layers
+	for (int i = neurons.size() - 2; i >= 1; i--) {
+		Eigen::MatrixXd transposedWeight = weights.back().transpose();
+		Eigen::MatrixXd hiddenError = transposedWeight * outputError;
+		Eigen::MatrixXd hiddenInput = weights[i-1] * neurons[i-1]; //Testa andra sifror om ej fungerar
+		hiddenError.array() *= hiddenInput.array();
+		//std::cout << "Hidden layer error = \n"; // inte testad
+		//printMatrix(hiddenError);
+		Eigen::MatrixXd wd = hiddenError * neurons[i-1].transpose();
+		weights.back() -= wd.transpose() * 0.1f * 10.1f;
+	}
+
+
+
 }
 
 void NeuralNetwork::printMatrix(Eigen::MatrixXd matrix)
@@ -125,8 +148,8 @@ Eigen::MatrixXd NeuralNetwork::calculateOutputs()
 		neurons[i] = weights[i-1] * neurons[i-1] + biases[i-1];
 		sigmoid(neurons[i]);
 	}
-	std::cout << "Outputs: \n";
-	printMatrix(neurons.back());
+	//std::cout << "Outputs: \n";
+	//printMatrix(neurons.back());
 	return neurons.back();
 	
 }

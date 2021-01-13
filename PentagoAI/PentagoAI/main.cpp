@@ -23,7 +23,7 @@ int main() {
 	inputs(0, 0) = 0.0f;
 	inputs(1, 0) = 0.33f;
 	nn.setInputs(inputs);
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 10000; i++) {
 		nn.calculateOutputs();
 		nn.backpropogation();
 	}

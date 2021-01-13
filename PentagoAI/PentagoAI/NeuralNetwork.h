@@ -9,12 +9,13 @@ private:
 	//Objects and vars
 	std::vector<Eigen::MatrixXd> weights;
 	std::vector<Eigen::MatrixXd> biases;
-	std::vector<Eigen::MatrixXd> neurons; 
+	std::vector<Eigen::MatrixXd> neurons;
 	Eigen::MatrixXd inputs; // To be removed, replaced by neurons[0]
 	std::vector<int> networkLayerSizes;
 
 	//Functions
-	void sigmoid(Eigen::MatrixXd & input); 
+	void sigmoid(Eigen::MatrixXd & input);
+	void sigmoidDerivative(Eigen::MatrixXd & input);
 	float calculateError(Eigen::MatrixXd output, Eigen::MatrixXd & target); //Inte testad
 	
 
