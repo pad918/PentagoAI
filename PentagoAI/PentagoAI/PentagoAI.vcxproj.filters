@@ -48,6 +48,9 @@
     <ClCompile Include="NeuralNetwork.cpp">
       <Filter>Source Files\NeuralNetwork</Filter>
     </ClCompile>
+    <ClCompile Include="NNTrainer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pentago.h">
@@ -67,6 +70,9 @@
     </ClInclude>
     <ClInclude Include="NeuralNetwork.h">
       <Filter>Source Files\NeuralNetwork</Filter>
+    </ClInclude>
+    <ClInclude Include="NNTrainer.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

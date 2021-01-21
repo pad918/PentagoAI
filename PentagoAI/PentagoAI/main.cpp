@@ -7,26 +7,15 @@
 #include "PlayGame.h"
 #include "Hash.h"
 #include "NeuralNetwork.h"
-//670 lines 2020-09-19
-//865 lines 2020-09-26
+#include "NNTrainer.h"
+//670  lines 2020-09-19
+//865  lines 2020-09-26
+//1284 lines 2021-01-13
 
 int main() {
-	//srand(time(NULL));
-	std::vector<int> layerSizes; 
-	layerSizes.push_back(2);
-	layerSizes.push_back(10);
-	layerSizes.push_back(2);
-	NeuralNetwork nn(layerSizes);
-	//nn.loadNetwork("smallTest.txt");
-	//nn.saveNetwork("nameless.txt");
-	Eigen::MatrixXd inputs(2, 1);
-	inputs(0, 0) = 0.0f;
-	inputs(1, 0) = 0.33f;
-	nn.setInputs(inputs);
-	for (int i = 0; i < 10000; i++) {
-		nn.calculateOutputs();
-		nn.backpropogation();
-	}
+	NNTrainer tester;
+	tester.testBackprop();
+	
 	/*
 	srand(0);
 	ptg::PentagoGame pentagoBoard;

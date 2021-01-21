@@ -4,5 +4,5 @@ c1xx : warning C4199: two-phase name lookup is not supported for C++/CLI, C++/CX
 c:\users\mansa\source\repos\gyarbetenn\gyarbetenn\pentagoai\pentagoai\eigen-master\eigen\src\core\arch\default\half.h : warning C4819: The file contains a character that cannot be represented in the current code page (932). Save the file in Unicode format to prevent data loss
 c:\users\mansa\source\repos\gyarbetenn\gyarbetenn\pentagoai\pentagoai\eigen-master\eigen\src\core\arch\default\bfloat16.h : warning C4819: The file contains a character that cannot be represented in the current code page (932). Save the file in Unicode format to prevent data loss
 c:\users\mansa\source\repos\gyarbetenn\gyarbetenn\pentagoai\pentagoai\neuralnetwork.cpp(33): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-c:\users\mansa\source\repos\gyarbetenn\gyarbetenn\pentagoai\pentagoai\neuralnetwork.cpp(65): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+c:\users\mansa\source\repos\gyarbetenn\gyarbetenn\pentagoai\pentagoai\neuralnetwork.cpp(66): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   PentagoAI.vcxproj -> C:\Users\mansa\source\repos\gyarbeteNN\gyarbeteNN\PentagoAI\x64\Debug\PentagoAI.exe

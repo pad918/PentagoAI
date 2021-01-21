@@ -33,47 +33,55 @@ float NeuralNetwork::calculateError(Eigen::MatrixXd output, Eigen::MatrixXd & ta
 	return output.sum();
 }
 
-void NeuralNetwork::backpropogation()
+bool NeuralNetwork::backpropogation(Eigen::MatrixXd targets)
 {
-	Eigen::MatrixXd targets; //get targets here!!!!
-	targets = Eigen::MatrixXd(2, 1);
-	targets(0, 0) = 0.0f;
-	targets(1, 0) = 1.0f;
-
 	
+	bool wasCorrect = false;
 	Eigen::MatrixXd outputs = calculateOutputs();
-	
-	//print total cost
-	Eigen::MatrixXd cost = targets - outputs;
-	cost = cost.array().pow(2);
-	cost *= 0.5f;
-	std::cout << "Cost sum = " << cost.sum() << "\n";
-
-	Eigen::MatrixXd outputError = targets - outputs; // Eo
-	Eigen::MatrixXd outputInput = weights.back() * neurons[neurons.size()-2]; // Zo borde vara -2
-	sigmoidDerivative(outputInput);
-	outputError.array() = outputError.array() * outputInput.array();
-	
-	//std::cout << "Output layer errors = \n"; // inte testad
-	//printMatrix(outputError);
-
-	//Test 
-	Eigen::MatrixXd weightDerivate = outputError * neurons[neurons.size() - 2].transpose();
-	weights.back() += weightDerivate * 0.1f;
-
-	//Hidden layers
-	for (int i = neurons.size() - 2; i >= 1; i--) {
-		Eigen::MatrixXd transposedWeight = weights.back().transpose();
-		Eigen::MatrixXd hiddenError = transposedWeight * outputError;
-		Eigen::MatrixXd hiddenInput = weights[i-1] * neurons[i-1]; //Testa andra sifror om ej fungerar
-		hiddenError.array() *= hiddenInput.array();
-		//std::cout << "Hidden layer error = \n"; // inte testad
-		//printMatrix(hiddenError);
-		Eigen::MatrixXd wd = hiddenError * neurons[i-1].transpose();
-		weights.back() -= wd.transpose() * 0.1f * 10.1f;
+	if (targets.cols() != outputs.cols() || targets.rows() != outputs.rows()) {
+		std::cout << "ERROR: targets and outputs matrix are not of the same size\n";
 	}
 
 
+	//print total cost
+	Eigen::MatrixXd cost = targets - outputs;
+	cost = cost.array().pow(2);
+	cost *= 0.5;
+	//std::cout << "Cost sum = " << cost.sum() << "\n";
+
+	Eigen::MatrixXd outputError = targets - outputs; // Eo
+	Eigen::MatrixXd outputInput = weights.back() * neurons[neurons.size()-2] + biases.back(); 
+	sigmoidDerivative(outputInput);
+	outputError.array() = outputError.array() * outputInput.array();
+
+	//update weights
+	Eigen::MatrixXd weightDerivate = outputError * neurons[neurons.size() - 2].transpose();
+	weights.back() += weightDerivate * 0.00001;
+
+	//Update biases
+	biases.back() += outputError * 0.00001;
+
+	//Hidden layers <--- Fixa så att det borde fungera med flera layers.
+	Eigen::MatrixXd prevLayerError = outputError;
+	for (int i = neurons.size() - 2; i >= 1; i--) {
+		Eigen::MatrixXd transposedWeight = weights[i].transpose(); // weights.back().transpose() | next layer weights
+		Eigen::MatrixXd hiddenError = transposedWeight * prevLayerError; // output error
+		Eigen::MatrixXd hiddenInput = weights[i-1] * neurons[i-1] + biases[i-1];  
+		sigmoidDerivative(hiddenInput); 
+		hiddenError.array() *= hiddenInput.array(); 
+
+		Eigen::MatrixXd wd = hiddenError * neurons[i-1].transpose(); 
+		weights[i - 1] += wd * 0.00001; 
+		biases[i - 1] += hiddenError * 0.00001; 
+		prevLayerError = hiddenError;
+	}
+
+	for (int i = 0; i < outputs.rows(); i++) {
+		outputs(i, 0) = (outputs(i, 0) >= 0.5) ? 1.0f : 0.0f;
+	}
+	wasCorrect = targets(0,0) == outputs(0,0);
+	
+	return (wasCorrect);
 
 }
 

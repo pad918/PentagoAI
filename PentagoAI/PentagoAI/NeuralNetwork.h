@@ -29,7 +29,7 @@ public:
 	void saveNetwork(std::string name); // Kan förekomma buggar
 	void loadNetwork(std::string name);	// Kan förekomma buggar
 	bool setInputs(Eigen::MatrixXd inputsValues);
-	void backpropogation();
+	bool backpropogation(Eigen::MatrixXd targets);
 
 	//Debug functions:
 	void benchmarkSigmoid(int times);

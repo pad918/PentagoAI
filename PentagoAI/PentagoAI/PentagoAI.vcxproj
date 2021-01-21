@@ -126,6 +126,7 @@
     <ClCompile Include="Minimax.cpp" />
     <ClCompile Include="MyMath.cpp" />
     <ClCompile Include="NeuralNetwork.cpp" />
+    <ClCompile Include="NNTrainer.cpp" />
     <ClCompile Include="Pentago.cpp" />
     <ClCompile Include="PlayGame.cpp" />
   </ItemGroup>
@@ -134,6 +135,7 @@
     <ClInclude Include="Minimax.h" />
     <ClInclude Include="MyMath.h" />
     <ClInclude Include="NeuralNetwork.h" />
+    <ClInclude Include="NNTrainer.h" />
     <ClInclude Include="Pentago.h" />
     <ClInclude Include="PlayGame.h" />
   </ItemGroup>
