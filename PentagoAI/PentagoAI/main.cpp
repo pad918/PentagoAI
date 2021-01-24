@@ -14,7 +14,7 @@
 
 int main() {
 	NNTrainer tester;
-	tester.testBackprop();
+	tester.trainAgainstMinmax();
 	
 	/*
 	srand(0);

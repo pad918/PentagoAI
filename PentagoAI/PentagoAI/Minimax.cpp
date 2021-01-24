@@ -1,5 +1,5 @@
 ﻿#include "Minimax.h"
-#define USINGHASHTABLE true
+#define USINGHASHTABLE false
 
 inline int mm::Minimax::points(int streak)
 {
@@ -140,7 +140,7 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 								maxEvaluation = eval;
 								if (depth == maxDepth) {
 									bestMove = move;
-									std::cout << "Found best move: " << eval << " | hash = " << hash.val[0] << " " << hash.val[1] << "\n";
+									//std::cout << "Found best move: " << eval << " | hash = " << hash.val[0] << " " << hash.val[1] << "\n";
 								}
 								
 							}

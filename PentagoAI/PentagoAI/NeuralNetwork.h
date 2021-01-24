@@ -3,6 +3,9 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <map>
+#include <random>
+#include <iterator>
 
 class NeuralNetwork {
 private:
@@ -16,7 +19,10 @@ private:
 	//Functions
 	void sigmoid(Eigen::MatrixXd & input);
 	void sigmoidDerivative(Eigen::MatrixXd & input);
-	float calculateError(Eigen::MatrixXd output, Eigen::MatrixXd & target); //Inte testad
+	void rectifier(Eigen::MatrixXd & input);
+	void rectifierDerivative(Eigen::MatrixXd & input);
+
+	float calculateCost(Eigen::MatrixXd output, Eigen::MatrixXd & target); //Inte testad
 	
 
 	//Debug functions:
@@ -29,7 +35,7 @@ public:
 	void saveNetwork(std::string name); // Kan förekomma buggar
 	void loadNetwork(std::string name);	// Kan förekomma buggar
 	bool setInputs(Eigen::MatrixXd inputsValues);
-	bool backpropogation(Eigen::MatrixXd targets);
+	bool backpropogation(Eigen::MatrixXd targets, double learningRate);
 
 	//Debug functions:
 	void benchmarkSigmoid(int times);

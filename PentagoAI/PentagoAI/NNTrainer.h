@@ -15,4 +15,5 @@ private:
 
 public:
 	void testBackprop();
+	void trainAgainstMinmax();
 };

@@ -25,7 +25,22 @@ void NeuralNetwork::sigmoidDerivative(Eigen::MatrixXd & input) //Testad
 	input = output;
 }
 
-float NeuralNetwork::calculateError(Eigen::MatrixXd output, Eigen::MatrixXd & target) //KANSKE LÅNGSAM!
+void NeuralNetwork::rectifier(Eigen::MatrixXd & input)
+{
+	input.array() = input.array().max(0.0);
+}
+
+void NeuralNetwork::rectifierDerivative(Eigen::MatrixXd & input)
+{
+	rectifier(input);
+	for (int i = 0; i < input.rows()*inputs.cols(); i++) {
+
+		input.array()(i) = (input.array()(i) > 0) ? 1.0 : 0.0;
+
+	}
+}
+
+float NeuralNetwork::calculateCost(Eigen::MatrixXd output, Eigen::MatrixXd & target) //KANSKE LÅNGSAM!
 {
 	output = output - target;
 	output = output.array().pow(2);
@@ -33,53 +48,65 @@ float NeuralNetwork::calculateError(Eigen::MatrixXd output, Eigen::MatrixXd & ta
 	return output.sum();
 }
 
-bool NeuralNetwork::backpropogation(Eigen::MatrixXd targets)
+bool NeuralNetwork::backpropogation(Eigen::MatrixXd targets, double learningRate)
 {
-	
 	bool wasCorrect = false;
 	Eigen::MatrixXd outputs = calculateOutputs();
 	if (targets.cols() != outputs.cols() || targets.rows() != outputs.rows()) {
 		std::cout << "ERROR: targets and outputs matrix are not of the same size\n";
 	}
+	/* Setting outputs to one or zero depending on chance [NAME OF THIS?] */
+	double weightsChanses[44]; 
+	for (int k=0; k<44; k++)
+		weightsChanses[k] = outputs(k, 0);
+	std::random_device rd;
+	std::mt19937 gen(rd()); // En långsam men nogrann slumpmetod
+	std::discrete_distribution<> d(std::begin(weightsChanses), std::end(weightsChanses) - 8);
+	std::discrete_distribution<> f(std::begin(weightsChanses) + 36, std::end(weightsChanses));
+	
+	std::map<int, int> position, rotation;
+	++position[d(gen)];
+	++rotation[f(gen)];
+	outputs.setZero();
+	outputs(position.begin()->first, 0) = 1;
+	outputs(rotation.begin()->first + 36, 0) = 1;
 
-
-	//print total cost
-	Eigen::MatrixXd cost = targets - outputs;
-	cost = cost.array().pow(2);
-	cost *= 0.5;
-	//std::cout << "Cost sum = " << cost.sum() << "\n";
-
+	/* Calculate ouput error and outputinput*/
 	Eigen::MatrixXd outputError = targets - outputs; // Eo
 	Eigen::MatrixXd outputInput = weights.back() * neurons[neurons.size()-2] + biases.back(); 
-	sigmoidDerivative(outputInput);
+	sigmoidDerivative(outputInput); //sigmoid
 	outputError.array() = outputError.array() * outputInput.array();
 
 	//update weights
 	Eigen::MatrixXd weightDerivate = outputError * neurons[neurons.size() - 2].transpose();
-	weights.back() += weightDerivate * 0.00001;
+	weights.back() += weightDerivate * learningRate;
 
 	//Update biases
-	biases.back() += outputError * 0.00001;
+	biases.back() += outputError * learningRate;
 
-	//Hidden layers <--- Fixa så att det borde fungera med flera layers.
+	//Hidden layers 
 	Eigen::MatrixXd prevLayerError = outputError;
 	for (int i = neurons.size() - 2; i >= 1; i--) {
+
+		//Calculate layer error
 		Eigen::MatrixXd transposedWeight = weights[i].transpose(); // weights.back().transpose() | next layer weights
 		Eigen::MatrixXd hiddenError = transposedWeight * prevLayerError; // output error
+
+		//Calculate layer inputs
 		Eigen::MatrixXd hiddenInput = weights[i-1] * neurons[i-1] + biases[i-1];  
-		sigmoidDerivative(hiddenInput); 
+		sigmoidDerivative(hiddenInput); //sigmoid
 		hiddenError.array() *= hiddenInput.array(); 
 
 		Eigen::MatrixXd wd = hiddenError * neurons[i-1].transpose(); 
-		weights[i - 1] += wd * 0.00001; 
-		biases[i - 1] += hiddenError * 0.00001; 
+		weights[i - 1] += wd * learningRate;
+		biases[i - 1] += hiddenError * learningRate;
 		prevLayerError = hiddenError;
 	}
 
 	for (int i = 0; i < outputs.rows(); i++) {
 		outputs(i, 0) = (outputs(i, 0) >= 0.5) ? 1.0f : 0.0f;
 	}
-	wasCorrect = targets(0,0) == outputs(0,0);
+	wasCorrect = targets.isApprox(outputs);
 	
 	return (wasCorrect);
 
@@ -124,10 +151,10 @@ double NeuralNetwork::evaluate()
 {
 	Eigen::MatrixXd nextLayer;
 	nextLayer.noalias() = weights[0] * inputs;
-	sigmoid(nextLayer);
+	rectifier(nextLayer); // sigmoid
 	for (int i = 1; i < networkLayerSizes.size() - 1; i++) {
 		nextLayer = weights[i] * nextLayer;
-		sigmoid(nextLayer);
+		rectifier(nextLayer); // sigmoid
 	}
 
 	//Loss function: TO CHANGE!
@@ -154,7 +181,7 @@ Eigen::MatrixXd NeuralNetwork::calculateOutputs()
 	
 	for (int i = 1; i < networkLayerSizes.size(); i++) {
 		neurons[i] = weights[i-1] * neurons[i-1] + biases[i-1];
-		sigmoid(neurons[i]);
+		sigmoid(neurons[i]); // sigmoid
 	}
 	//std::cout << "Outputs: \n";
 	//printMatrix(neurons.back());
