@@ -207,7 +207,7 @@ void NeuralNetwork::saveNetwork(std::string name)
 		for (int i = 0; i < weights.size(); i++) {
 			for (int x = 0; x < networkLayerSizes[i]; x++) {
 				for (int y = 0; y < networkLayerSizes[i + 1]; y++) {
-					saveFile << weights[i](y, x) << "\n";
+					saveFile << std::setprecision(16) << weights[i](y, x) << "\n";
 					//std::cout << i << " " << x  << " " << y << "\n";
 				}
 			}
@@ -215,7 +215,7 @@ void NeuralNetwork::saveNetwork(std::string name)
 		saveFile << "[Biases]\n";
 		for (int i = 1; i < networkLayerSizes.size(); i++) {
 			for (int j = 0; j < networkLayerSizes[i]; j++) {
-				saveFile << biases[i-1](j, 0) << "\n";
+				saveFile << std::setprecision(16)  << biases[i-1](j, 0) << "\n";
 			}
 		}
 		saveFile.close();

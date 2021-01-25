@@ -18,6 +18,7 @@ namespace mm{
 		int maxDepth=0;
 		mth::PentagoMove bestMove;
 		int testVal = 0;
+		int debugVal2 = 0;
 		void clearTables();
 		HashTable hashTableMax; // SHOULD BE PRIVATE
 		HashTable hashTableMin; // SHOULD BE PRIVATE

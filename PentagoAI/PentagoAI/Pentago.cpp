@@ -52,6 +52,8 @@ void ptg::PentagoSubBoard::rotate(int dir)
 
 }
 
+
+
 uint32_t ptg::PentagoSubBoard::getHash()
 {
 	uint32_t hash = 0;
@@ -269,6 +271,20 @@ int ptg::PentagoGame::marbleAt(int x, int y)
 	int subBoardPos = (y / 3) * 2 + (x / 3) * 1;
 	int subBoardXPos = (x % 3);
 	return subBoards[subBoardPos].marbles[3*subBoardYPos+subBoardXPos];
+}
+
+uint64_t ptg::PentagoGame::getShortHash(int depth)
+{
+	uint64_t hash = 0;
+	int mul = 1;
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 9; j++) {
+			mul *= 3;
+			hash += subBoards[i].marbles[j] * mul;
+		}
+	}
+	hash += depth << 60;
+	return hash;
 }
 
 Hash128 ptg::PentagoGame::getHash(int depth)

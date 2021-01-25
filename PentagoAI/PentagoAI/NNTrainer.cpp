@@ -93,29 +93,29 @@ void NNTrainer::trainAgainstMinmax()
 	layerSizes.push_back(80);
 	layerSizes.push_back(44);
 	NeuralNetwork nn(layerSizes);
-	nn.loadNetwork("80by3_minimax_depth2_network.txt"); //load network
+	//nn.loadNetwork("80by3_minimax_depth2_network.txt"); //load network
 	/* Setup pentago board and minimax ai
 		minimax =	player 1
 		NN		=	player 2
 	*/
 	mm::Minimax ai;
-	int maxDepth = 2;
+	int maxDepth = 4;
 	ai.maxDepth = maxDepth; // set minimax deapth
 	ptg::PentagoGame pentagoBoard;
 	int hits = 0;
 	int trainingNr = 0;
-	long batchNumber = 350000;
+	long batchNumber = 10000;
 	/* Train the neural network */
-	for (int i = 0; i < 1000000; i++) {
+	for (int i = 0; i < 100000; i++) {
 
 		/* Set training sample (Pantagoboard)*/
 		pentagoBoard = ptg::PentagoGame();
-		int numOfMoves = rand() % 10 + 3;
+		int numOfMoves = rand() % 25 + 3;
 		pentagoBoard.setMarble(0, 0, rand() % 2 + 1);
 		for (int i = 0; i < numOfMoves; i++) {
 			pentagoBoard.setMarble(rand() % 6, rand() % 6, (i % 2 == 0) ? 2 : 1);
 		}
-		
+
 		/* Set inputs from pentago board */
 		Eigen::MatrixXd inputs(108, 1);
 		inputs.setZero();
@@ -126,7 +126,14 @@ void NNTrainer::trainAgainstMinmax()
 		nn.setInputs(inputs);
 		
 		/* Use minimax on board and generate target outputs for the network */
+		auto start = std::chrono::high_resolution_clock::now();
+		
+		ai.clearTables();
 		ai.minimax(mth::PentagoMove(), maxDepth, 1, -1000, 1000, pentagoBoard);
+		std::cout << "Debugval2 = " << ai.debugVal2 << "\n";
+		auto stop = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+		std::cout << "Time to calc minimax: " << duration.count() << "ms\n";
 		int targetMarblePos = ai.bestMove.marblePos.y * 6 + ai.bestMove.marblePos.x;
 		int targetRotation = ai.bestMove.rotation.x * 2 + (ai.bestMove.rotation.y + 1) / 2; // OBS! kan vara fel här
 		Eigen::MatrixXd targetOutputs(44, 1);
@@ -140,8 +147,8 @@ void NNTrainer::trainAgainstMinmax()
 		double lr = 1 / (1.0 + 1.0 * std::sqrt(++batchNumber)); // change learning rate here!
 		bool wasCorrect = nn.backpropogation(targetOutputs, lr); 
 		hits += wasCorrect ? 1 : 0;
-		if (++trainingNr % 5000 == 0) {
-			nn.saveNetwork("80by3_minimax_depth2_network.txt");
+		if (++trainingNr % 100 == 0) {
+			nn.saveNetwork("80by3_minimax_depth3_network.txt");
 			std::cout << "Hitrate in the last " << trainingNr << " tests = " << (100.0f * hits / (float)trainingNr) << "%\n";
 			std::cout << "BatchNumber = " << batchNumber << " | LR = " << lr << "\n";
 			trainingNr = 0;

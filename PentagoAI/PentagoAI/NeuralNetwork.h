@@ -6,6 +6,7 @@
 #include <map>
 #include <random>
 #include <iterator>
+#include <iomanip>
 
 class NeuralNetwork {
 private:

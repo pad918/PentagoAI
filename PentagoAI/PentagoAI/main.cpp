@@ -13,17 +13,17 @@
 //1284 lines 2021-01-13
 
 int main() {
+	/*
 	NNTrainer tester;
 	tester.trainAgainstMinmax();
-	
-	/*
-	srand(0);
-	ptg::PentagoGame pentagoBoard;
-	GameHandler game;
-	mm::Minimax ai; ai.maxDepth = 4; ai.testVal = 0;
-	game.playAgainstMinimax(pentagoBoard, 4);
 	*/
 	
+	
+	srand(0);
+	GameHandler game;
+	game.playGame(0, 2);
+	
+	//stop program from stopping
 	int c; std::cin >> c;
 	return 0;
 }

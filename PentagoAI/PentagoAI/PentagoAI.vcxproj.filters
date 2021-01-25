@@ -49,7 +49,7 @@
       <Filter>Source Files\NeuralNetwork</Filter>
     </ClCompile>
     <ClCompile Include="NNTrainer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\NeuralNetwork</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -72,7 +72,7 @@
       <Filter>Source Files\NeuralNetwork</Filter>
     </ClInclude>
     <ClInclude Include="NNTrainer.h">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\NeuralNetwork</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -123,16 +123,23 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 							newBoard.rotateSubBoard(move.rotation.x, move.rotation.y);
 
 							Hash128 hash = newBoard.getHash(depth);
+							uint64_t shortHash = newBoard.getShortHash(depth);
 
 							int eval;
 							if (USINGHASHTABLE && depth == 3 && hashTableMax.isInTable(hash)) {
 								eval = hashTableMax.getVal(hash);
+
+								//NY SKRÄPKOD!
+								
 							}
 							else
 							{
 								eval = minimax(move, depth - 1, 2, alpha, beta, newBoard); 
 								if (USINGHASHTABLE && depth == 3) {
 									hashTableMax.addElement(hash, eval);
+
+									//NY SKRÄPKOD! TEST
+									
 								}
 							}
 
@@ -169,16 +176,24 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 							newBoard.setMarble(x, y, 2);
 							newBoard.rotateSubBoard(move.rotation.x, move.rotation.y);
 						
-							Hash128 hash = newBoard.getHash(depth);
+							Hash128 hash = newBoard.getHash(depth); // depth
+							//uint64_t shortHash = newBoard.getShortHash(depth);
+
 							int eval;
-							if (USINGHASHTABLE && depth == 3 && hashTableMin.isInTable(hash)) { // ATT GÖRA, mindre ska kunna använda större...
+							if (USINGHASHTABLE && depth == 3 && hashTableMin.isInTable(hash)) { // ATT GÖRA: mindre ska kunna använda större...
 								eval = hashTableMin.getVal(hash);
+
+								//Ny kod
+								//eval = hashTableMin.getVal(shortHash);
 							}
 							else
 							{
 								eval = minimax(move, depth - 1, 1, alpha, beta, newBoard);
 								if (USINGHASHTABLE && depth == 3) {
 									hashTableMin.addElement(hash, eval);
+
+									//NY SKRÄPKOD! 
+									//hashTableMin.addElement(shortHash, eval);
 								}
 							}
 							if (minEvaluation > eval) {
@@ -205,4 +220,6 @@ void mm::Minimax::clearTables()
 	hashTableMin.hashList.clear();
 	hashTableMax.valueList.clear();
 	hashTableMin.valueList.clear();
+	//hashTableMax.clear();
+	//hashTableMin.clear();
 }
