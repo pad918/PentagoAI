@@ -1,5 +1,5 @@
 ﻿#include "Minimax.h"
-#define USINGHASHTABLE false
+#define USINGHASHTABLE true
 
 inline int mm::Minimax::points(int streak)
 {
@@ -22,13 +22,12 @@ inline int mm::Minimax::points(int streak)
 mm::Minimax::Minimax()
 {
 	//Init
-	
+	debugBool = USINGHASHTABLE;
 }
 
 int mm::Minimax::evaluate(ptg::PentagoGame board, int player)
 {
 	//This method is slow AF, should find a smarter way to do this.
-	//OBS! maybe bitwise opperations could bee used ex) https://www.geeksforgeeks.org/count-set-bits-in-an-integer/ 
 
 	int totalPoints = 0;
 	debugVal++;
@@ -36,7 +35,7 @@ int mm::Minimax::evaluate(ptg::PentagoGame board, int player)
 	for (int x = 0; x < 6; x++) {
 		int streak = 0;
 		for (int y = 0; y < 6; y++) {
-			if (board.marbleAt(x, y) == player) { streak++; }
+			if (board.subBoards[(y > 2) * 2 + (x > 2) * 1].marbles[3 * (y - (y > 2) * 3) + (x - (x > 2) * 3)] == player) { streak++; }
 			else { if (streak > 1) { totalPoints += points(streak); } streak = 0; }
 		}
 		if (streak > 1) {
@@ -47,7 +46,7 @@ int mm::Minimax::evaluate(ptg::PentagoGame board, int player)
 	for (int y = 0; y < 6; y++) {
 		int streak = 0;
 		for (int x = 0; x < 6; x++) {
-			if (board.marbleAt(x, y) == player) { streak++; }
+			if (board.subBoards[(y > 2) * 2 + (x > 2) * 1].marbles[3 * (y - (y > 2) * 3) + (x - (x > 2) * 3)] == player) { streak++; }
 			else { if (streak > 1) { totalPoints += points(streak); } streak = 0; }
 		}
 		if (streak > 1) {
@@ -67,7 +66,7 @@ int mm::Minimax::evaluate(ptg::PentagoGame board, int player)
 			x = (y - (4 - i));
 			if (x >= 0 && x < 6) {
 				int tmp = streak;
-				streak = (board.marbleAt(x, y) == player) ? streak + 1 : 0;
+				streak = (board.subBoards[(y > 2) * 2 + (x > 2) * 1].marbles[3 * (y - (y > 2) * 3) + (x - (x > 2) * 3)] == player) ? streak + 1 : 0;
 				totalPoints = (tmp > 1 && streak == 0) ? totalPoints + points(tmp) : totalPoints;
 			}
 		}
@@ -86,7 +85,7 @@ int mm::Minimax::evaluate(ptg::PentagoGame board, int player)
 			x = -(y - (1 + i));
 			if (x >= 0 && x < 6) {
 				int tmp = streak;
-				streak = (board.marbleAt(x, y) == player) ? streak + 1 : 0;
+				streak = (board.subBoards[(y > 2) * 2 + (x > 2) * 1].marbles[3 * (y - (y > 2) * 3) + (x - (x > 2) * 3)] == player) ? streak + 1 : 0;
 				totalPoints = (tmp > 1 && streak == 0) ? totalPoints + points(tmp) : totalPoints;
 			}
 		}
@@ -122,12 +121,11 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 							newBoard.setMarble(x, y, 1);
 							newBoard.rotateSubBoard(move.rotation.x, move.rotation.y);
 
-							Hash128 hash = newBoard.getHash(depth);
-							uint64_t shortHash = newBoard.getShortHash(depth);
+							uint64_t shortHash = newBoard.getShortHash(0);
 
 							int eval;
-							if (USINGHASHTABLE && depth == 3 && hashTableMax.isInTable(hash)) {
-								eval = hashTableMax.getVal(hash);
+							if (USINGHASHTABLE && depth <= hashTable.highestDepthOfHashNy(shortHash)) {
+								eval = hashTable.getValNy(shortHash);
 
 								//NY SKRÄPKOD!
 								
@@ -135,8 +133,8 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 							else
 							{
 								eval = minimax(move, depth - 1, 2, alpha, beta, newBoard); 
-								if (USINGHASHTABLE && depth == 3) {
-									hashTableMax.addElement(hash, eval);
+								if (USINGHASHTABLE && depth >= 2) {
+									hashTable.addElementNy(shortHash, eval, depth);
 
 									//NY SKRÄPKOD! TEST
 									
@@ -175,25 +173,21 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 							mth::PentagoMove move(mth::Vector2(x, y), mth::Vector2(i / 2, (i % 2 == 0) ? 1 : -1));
 							newBoard.setMarble(x, y, 2);
 							newBoard.rotateSubBoard(move.rotation.x, move.rotation.y);
-						
-							Hash128 hash = newBoard.getHash(depth); // depth
-							//uint64_t shortHash = newBoard.getShortHash(depth);
+
+							uint64_t shortHash = newBoard.getShortHash(0);
 
 							int eval;
-							if (USINGHASHTABLE && depth == 3 && hashTableMin.isInTable(hash)) { // ATT GÖRA: mindre ska kunna använda större...
-								eval = hashTableMin.getVal(hash);
+							if (USINGHASHTABLE && depth <= hashTable.highestDepthOfHashNy(shortHash)) { // ATT GÖRA: mindre ska kunna använda större...
 
-								//Ny kod
-								//eval = hashTableMin.getVal(shortHash);
+								eval = hashTable.getValNy(shortHash);
+
 							}
 							else
 							{
 								eval = minimax(move, depth - 1, 1, alpha, beta, newBoard);
-								if (USINGHASHTABLE && depth == 3) {
-									hashTableMin.addElement(hash, eval);
+								if (USINGHASHTABLE && depth>=2) {
 
-									//NY SKRÄPKOD! 
-									//hashTableMin.addElement(shortHash, eval);
+									hashTable.addElementNy(shortHash, eval, depth);
 								}
 							}
 							if (minEvaluation > eval) {
@@ -216,10 +210,8 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 
 void mm::Minimax::clearTables()
 {
-	hashTableMax.hashList.clear();
-	hashTableMin.hashList.clear();
-	hashTableMax.valueList.clear();
-	hashTableMin.valueList.clear();
-	//hashTableMax.clear();
-	//hashTableMin.clear();
+	//hashTable.shortHashList.clear();
+	//hashTable.valueList.clear();
+	hashTable.hashMap.clear();
+	hashTable.highestValuesMap.clear();
 }

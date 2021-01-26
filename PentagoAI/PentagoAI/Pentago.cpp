@@ -267,10 +267,17 @@ int ptg::PentagoGame::marbleAt(int x, int y)
 {
 	//Converts abs pos to relative (cleans code)
 
-	int subBoardYPos = (y % 3);
-	int subBoardPos = (y / 3) * 2 + (x / 3) * 1;
-	int subBoardXPos = (x % 3);
-	return subBoards[subBoardPos].marbles[3*subBoardYPos+subBoardXPos];
+	//OLD SLOW
+	//int subBoardYPos = (y % 3);
+	//int subBoardPos = (y / 3) * 2 + (x / 3) * 1;
+	//int subBoardXPos = (x % 3);
+	//return subBoards[subBoardPos].marbles[3*subBoardYPos+subBoardXPos];
+
+	//New fast?
+	int subBoardYPos = y - (y > 2) * 3;
+	int subBoardPos = (y > 2) * 2 + (x > 2) * 1;
+	int subBoardXPos = x - (x > 2) * 3;
+	return subBoards[subBoardPos].marbles[3 * subBoardYPos + subBoardXPos];
 }
 
 uint64_t ptg::PentagoGame::getShortHash(int depth)

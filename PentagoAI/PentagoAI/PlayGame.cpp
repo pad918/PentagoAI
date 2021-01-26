@@ -15,8 +15,8 @@ void GameHandler::playGame(int playerOneType, int playerTwoType)
 	*/
 	//initialize players and variables
 	playerOne = new HumanPlayer;
-	playerTwo = new MinimaxPlayer;
-	//playerTwo = new NNPlayer;
+	//playerTwo = new MinimaxPlayer;
+	playerTwo = new NNPlayer;
 
 	int hasWon = 0;
 	ptg::PentagoGame board;
@@ -59,7 +59,7 @@ void GameHandler::playAgainstMinimax(ptg::PentagoGame &board, int depth)
 		std::cout << "\n";
 		//system("cls"); //REMOVE SHITTY WINDOWS ONLY SHIT!
 		board.printBoard();
-		std::cout << "\n \n AI BUFFER: " << (ai.hashTableMax.hashList.size() + ai.hashTableMin.hashList.size()) << "\n\n";
+		//std::cout << "\n \n AI BUFFER: " << (ai.hashTableMax.hashList.size() + ai.hashTableMin.hashList.size()) << "\n\n"; SKA INTE VARA KOMMENTERAD
 		int x, y;
 		std::cout << "Player's turn. " << "| Set marble: x:y : ";
 		std::cin >> x >> y;
@@ -151,7 +151,7 @@ NNPlayer::NNPlayer()
 	layerSizes.push_back(10);
 	layerSizes.push_back(10);
 	nn = new NeuralNetwork(layerSizes);
-	nn->loadNetwork("80by3_minimax_depth2_network.txt");
+	nn->loadNetwork("80by3_minimax_depth3_network.txt");
 }
 
 void NNPlayer::doMove(ptg::PentagoGame & board)

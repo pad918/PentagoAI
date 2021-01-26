@@ -9,7 +9,7 @@ namespace mm{
 	private:
 		int points(int streak);
 		int debugVal = 0;
-		
+		bool debugBool = false;
 		
 	public:
 		Minimax();
@@ -20,8 +20,7 @@ namespace mm{
 		int testVal = 0;
 		int debugVal2 = 0;
 		void clearTables();
-		HashTable hashTableMax; // SHOULD BE PRIVATE
-		HashTable hashTableMin; // SHOULD BE PRIVATE
+		HashTable hashTable;
 	};
 
 }

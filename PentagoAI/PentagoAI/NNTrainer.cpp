@@ -93,18 +93,18 @@ void NNTrainer::trainAgainstMinmax()
 	layerSizes.push_back(80);
 	layerSizes.push_back(44);
 	NeuralNetwork nn(layerSizes);
-	//nn.loadNetwork("80by3_minimax_depth2_network.txt"); //load network
+	nn.loadNetwork("80by3_minimax_depth3_network.txt"); //load network
 	/* Setup pentago board and minimax ai
 		minimax =	player 1
 		NN		=	player 2
 	*/
 	mm::Minimax ai;
-	int maxDepth = 4;
+	int maxDepth = 3;
 	ai.maxDepth = maxDepth; // set minimax deapth
 	ptg::PentagoGame pentagoBoard;
 	int hits = 0;
 	int trainingNr = 0;
-	long batchNumber = 10000;
+	long batchNumber = 70000;
 	/* Train the neural network */
 	for (int i = 0; i < 100000; i++) {
 
@@ -126,14 +126,13 @@ void NNTrainer::trainAgainstMinmax()
 		nn.setInputs(inputs);
 		
 		/* Use minimax on board and generate target outputs for the network */
-		auto start = std::chrono::high_resolution_clock::now();
+		//auto start = std::chrono::high_resolution_clock::now();
 		
 		ai.clearTables();
 		ai.minimax(mth::PentagoMove(), maxDepth, 1, -1000, 1000, pentagoBoard);
-		std::cout << "Debugval2 = " << ai.debugVal2 << "\n";
-		auto stop = std::chrono::high_resolution_clock::now();
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-		std::cout << "Time to calc minimax: " << duration.count() << "ms\n";
+		//auto stop = std::chrono::high_resolution_clock::now();
+		//auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+		//std::cout << "Time to calc minimax: " << duration.count() << "ms\n";
 		int targetMarblePos = ai.bestMove.marblePos.y * 6 + ai.bestMove.marblePos.x;
 		int targetRotation = ai.bestMove.rotation.x * 2 + (ai.bestMove.rotation.y + 1) / 2; // OBS! kan vara fel här
 		Eigen::MatrixXd targetOutputs(44, 1);

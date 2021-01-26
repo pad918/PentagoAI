@@ -35,21 +35,20 @@ private:
 public:
 	//Nya saker
 	//std::unordered_map<uint64_t, long> hashMap; 
-	//tsl::robin_map<uint64_t, long> hashMap;
+	tsl::robin_map<uint64_t, long> hashMap;
+	tsl::robin_map<uint64_t, int> highestValuesMap;
 
 	//Gamla saker
 	int testVal = 0;
-	bool isInTable(Hash128 inputHash);
-	bool isInTable(uint64_t inputHash);
-	long getIndexInTable(Hash128 hash);
+	int highestDepthOfHash(uint64_t inputHash);
+	int highestDepthOfHashNy(uint64_t inputHash);
 	long getIndexInTable(uint64_t hash);
-	void addElement(Hash128 hash, int value);
-	void addElement(uint64_t hash, int value);
-	int getVal(Hash128 hash);
+	void addElement(uint64_t hash, int value, int depth);
+	void addElementNy(uint64_t hash, int value, int depth);
 	int getVal(uint64_t hash);
-	std::vector<Hash128> hashList;
+	int getValNy(uint64_t hash);
 	std::vector<uint64_t> shortHashList;
-	std::vector<int> lowestDepth;
+	std::vector<int> highestDepth;
 	std::vector<int> valueList;
 	void clear();
 };
