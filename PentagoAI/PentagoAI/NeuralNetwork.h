@@ -14,6 +14,7 @@ private:
 	std::vector<Eigen::MatrixXd> weights;
 	std::vector<Eigen::MatrixXd> biases;
 	std::vector<Eigen::MatrixXd> neurons;
+	Eigen::MatrixXd lastOutputs;
 	Eigen::MatrixXd inputs; // To be removed, replaced by neurons[0]
 	std::vector<int> networkLayerSizes;
 
@@ -22,8 +23,6 @@ private:
 	void sigmoidDerivative(Eigen::MatrixXd & input);
 	void rectifier(Eigen::MatrixXd & input);
 	void rectifierDerivative(Eigen::MatrixXd & input);
-
-	float calculateCost(Eigen::MatrixXd output, Eigen::MatrixXd & target); //Inte testad
 	
 
 	//Debug functions:
@@ -31,12 +30,12 @@ private:
 
 public:
 	NeuralNetwork(std::vector<int> layerSizes);
-	double evaluate(); // Old function 
 	Eigen::MatrixXd calculateOutputs();
-	void saveNetwork(std::string name); // Kan förekomma buggar
-	void loadNetwork(std::string name);	// Kan förekomma buggar
+	void saveNetwork(std::string name); 
+	void loadNetwork(std::string name);	
 	bool setInputs(Eigen::MatrixXd inputsValues);
 	bool backpropogation(Eigen::MatrixXd targets, double learningRate);
+	double calculateCost(Eigen::MatrixXd & target); 
 
 	//Debug functions:
 	void benchmarkSigmoid(int times);

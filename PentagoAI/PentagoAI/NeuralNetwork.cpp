@@ -40,11 +40,12 @@ void NeuralNetwork::rectifierDerivative(Eigen::MatrixXd & input)
 	}
 }
 
-float NeuralNetwork::calculateCost(Eigen::MatrixXd output, Eigen::MatrixXd & target) //KANSKE LÅNGSAM!
+double NeuralNetwork::calculateCost(Eigen::MatrixXd & target) //KANSKE LÅNGSAM!
 {
+	auto output = lastOutputs;
 	output = output - target;
 	output = output.array().pow(2);
-	output *= 0.5f;
+	output *= 0.5;
 	return output.sum();
 }
 
@@ -52,6 +53,7 @@ bool NeuralNetwork::backpropogation(Eigen::MatrixXd targets, double learningRate
 {
 	bool wasCorrect = false;
 	Eigen::MatrixXd outputs = calculateOutputs();
+	lastOutputs = outputs;
 	if (targets.cols() != outputs.cols() || targets.rows() != outputs.rows()) {
 		std::cout << "ERROR: targets and outputs matrix are not of the same size\n";
 	}
@@ -147,35 +149,6 @@ NeuralNetwork::NeuralNetwork(std::vector<int> layerSizes)
 	}
 }
 
-double NeuralNetwork::evaluate() 
-{
-	Eigen::MatrixXd nextLayer;
-	nextLayer.noalias() = weights[0] * inputs;
-	rectifier(nextLayer); // sigmoid
-	for (int i = 1; i < networkLayerSizes.size() - 1; i++) {
-		nextLayer = weights[i] * nextLayer;
-		rectifier(nextLayer); // sigmoid
-	}
-
-	//Loss function: TO CHANGE!
-	Eigen::MatrixXd preferedValues(nextLayer.rows(), 1); // Ska ändras för att passa AI:n
-	if (inputs(0, 0) < inputs(1, 0)) {
-		preferedValues(0, 0) = 0;
-		preferedValues(1, 0) = 1;
-	}
-	else {
-		preferedValues(0, 0) = 1;
-		preferedValues(1, 0) = 0;
-	}
-
-	Eigen::MatrixXd dif;
-	dif.noalias() = nextLayer - preferedValues;
-	dif = dif.array().pow(2);
-
-
-	return dif.sum();
-}
-
 Eigen::MatrixXd NeuralNetwork::calculateOutputs() 
 {
 	
@@ -183,8 +156,6 @@ Eigen::MatrixXd NeuralNetwork::calculateOutputs()
 		neurons[i] = weights[i-1] * neurons[i-1] + biases[i-1];
 		sigmoid(neurons[i]); // sigmoid
 	}
-	//std::cout << "Outputs: \n";
-	//printMatrix(neurons.back());
 	return neurons.back();
 	
 }

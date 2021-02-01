@@ -1,9 +1,11 @@
 #pragma once
 #include <Eigen/Dense>
+#include <SFML/Graphics.hpp>
 #include "Minimax.h"
 #include "Pentago.h"
 #include "MyMath.h"
 #include "NeuralNetwork.h"
+#include "GUI.h"
 
 class Player {
 protected:
@@ -42,5 +44,4 @@ private:
 public:
 	GameHandler();
 	void playGame(int playerOneType, int playerTwoType);
-	void playAgainstMinimax(ptg::PentagoGame &board, int depth);
 };

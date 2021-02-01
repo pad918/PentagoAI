@@ -1,0 +1,156 @@
+Board:
+
+
+ 0 0 0  0 0 0
+ 0 0 0  0 0 0
+ 0 0 0  0 0 0
+
+ 0 0 0  0 0 0
+ 0 0 0  0 0 0
+ 0 0 0  0 0 0
+Player's turn. | Set marble: x y
+0 0
+
+Rotation: x y dir
+1 1 1
+
+Board:
+
+
+ 2 0 0  0 0 0
+ 0 0 0  0 0 0
+ 0 0 0  0 0 0
+
+ 0 0 0  0 0 0
+ 0 0 0  0 0 0
+ 0 0 0  0 0 0
+
+minimax AI's turn...Time to calc: 1592ms
+
+Board:
+
+
+ 0 0 0  0 0 0
+ 0 0 0  0 0 0
+ 2 0 0  0 0 0
+
+ 0 0 1  0 0 0
+ 0 0 0  0 0 0
+ 0 0 0  0 0 0
+Player's turn. | Set marble: x y
+1 1
+
+Rotation: x y dir
+0 1 1
+
+Board:
+
+
+ 0 0 0  0 0 0
+ 0 2 0  0 0 0
+ 2 0 0  0 0 0
+
+ 0 0 0  0 0 0
+ 0 0 0  0 0 0
+ 0 0 1  0 0 0
+
+minimax AI's turn...Time to calc: 1833ms
+
+Board:
+
+
+ 0 0 1  0 0 0
+ 0 2 0  0 0 0
+ 2 0 0  0 0 0
+
+ 0 0 0  0 0 0
+ 0 0 0  0 0 0
+ 0 0 1  0 0 0
+Player's turn. | Set marble: x y
+0 0
+
+Rotation: x y dir
+0 1 1
+
+Board:
+
+
+ 2 0 1  0 0 0
+ 0 2 0  0 0 0
+ 2 0 0  0 0 0
+
+ 0 0 0  0 0 0
+ 0 0 0  0 0 0
+ 1 0 0  0 0 0
+
+minimax AI's turn...Time to calc: 1793ms
+
+Board:
+
+
+ 2 1 1  0 0 0
+ 0 2 0  0 0 0
+ 2 0 0  0 0 0
+
+ 0 0 0  0 0 0
+ 0 0 0  0 0 0
+ 1 0 0  0 0 0
+Player's turn. | Set marble: x y
+2 2
+
+Rotation: x y dir
+0 1 1
+
+Board:
+
+
+ 2 1 1  0 0 0
+ 0 2 0  0 0 0
+ 2 0 2  0 0 0
+
+ 1 0 0  0 0 0
+ 0 0 0  0 0 0
+ 0 0 0  0 0 0
+
+minimax AI's turn...Time to calc: 1533ms
+
+Board:
+
+
+ 2 1 1  0 0 0
+ 0 2 1  0 0 0
+ 2 0 2  0 0 0
+
+ 1 0 0  0 0 0
+ 0 0 0  0 0 0
+ 0 0 0  0 0 0
+Player's turn. | Set marble: x y
+4 4
+
+Rotation: x y dir
+0 1 -1
+
+Board:
+
+
+ 2 1 1  0 0 0
+ 0 2 1  0 0 0
+ 2 0 2  0 0 0
+
+ 0 0 0  0 0 0
+ 0 0 0  0 2 0
+ 1 0 0  0 0 0
+
+minimax AI's turn...Time to calc: 2369ms
+
+Board:
+
+
+ 2 1 1  0 0 1
+ 0 2 1  0 0 0
+ 2 0 2  0 0 0
+
+ 0 0 0  0 0 0
+ 0 0 0  0 2 0
+ 1 0 0  0 0 0
+Player's turn. | Set marble: x y

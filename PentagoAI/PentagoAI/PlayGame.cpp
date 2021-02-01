@@ -15,12 +15,60 @@ void GameHandler::playGame(int playerOneType, int playerTwoType)
 	*/
 	//initialize players and variables
 	playerOne = new HumanPlayer;
-	//playerTwo = new MinimaxPlayer;
-	playerTwo = new NNPlayer;
+	playerTwo = new MinimaxPlayer;
+	//playerTwo = new NNPlayer;
 
 	int hasWon = 0;
 	ptg::PentagoGame board;
 
+	sf::RenderWindow window(sf::VideoMode(500, 500), "PENTAGO GAME");;
+	GUI gameGUI;
+
+	//Create frame
+	while (window.isOpen()) {
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			switch (event.type) {
+			case sf::Event::Closed:
+				window.close();
+			}
+
+		}
+
+		window.clear();
+		gameGUI.update(window, board);
+		window.display();
+
+		//Player one's move
+		std::cout << "\n";
+		board.printBoard();
+		playerOne->doMove(board);
+		hasWon = board.hasWonFast();
+		if (hasWon != 0) {
+			std::cout << "NÅGON VANN!\n";
+		}
+
+		window.clear();
+		gameGUI.update(window, board);
+		window.display();
+
+		//Player two's turn
+		std::cout << "\n";
+		board.printBoard();
+		playerTwo->doMove(board);
+		hasWon = board.hasWonFast();
+		if (hasWon != 0) {
+			std::cout << "NÅGON VANN!\n";
+		}
+
+		window.clear();
+		gameGUI.update(window, board);
+		window.display();		
+	
+	}
+	std::cout << "Spelet avslutades av okännd anledning\n";
+	/*
 	for (int i = 0; i < 18; i++) {
 		//Player one's move
 		std::cout << "\n";
@@ -45,70 +93,7 @@ void GameHandler::playGame(int playerOneType, int playerTwoType)
 	//system("cls");
 	board.printBoard();
 	std::cout << "  Player: " << hasWon << " WON!\n";
-}
-
-void GameHandler::playAgainstMinimax(ptg::PentagoGame &board, int depth)
-{
-	mm::Minimax ai;
-	ai.maxDepth = depth;
-	int hasWon = 0;
-	int aiPoints = 0;
-	int plTurn = 0;
-	for (int i = 0; i < 18; i++) {
-		//Player move
-		std::cout << "\n";
-		//system("cls"); //REMOVE SHITTY WINDOWS ONLY SHIT!
-		board.printBoard();
-		//std::cout << "\n \n AI BUFFER: " << (ai.hashTableMax.hashList.size() + ai.hashTableMin.hashList.size()) << "\n\n"; SKA INTE VARA KOMMENTERAD
-		int x, y;
-		std::cout << "Player's turn. " << "| Set marble: x:y : ";
-		std::cin >> x >> y;
-		board.setMarble(x, y, 2);
-		hasWon = board.hasWonFast();
-		if (hasWon != 0) {
-			break;
-		}
-		std::cout << "\n";
-		//system("cls"); //REMOVE SHITTY WINDOWS ONLY SHIT!
-		board.printBoard();
-		std::cout << "\n";
-		int dir;
-		std::cout << "Player's turn. " << "| Rotate sub board: x:y:dir : ";
-		std::cin >> x >> y >> dir;
-		board.rotateSubBoard(x, y, dir);
-		hasWon = board.hasWonFast();
-		if (hasWon != 0) {
-			break;
-		}
-		//Ai move
-		std::cout << "\n";
-		//system("cls"); //REMOVE SHITTY WINDOWS ONLY SHIT!
-		board.printBoard();
-		std::cout << "\n";
-		std::cout << "minimax AI's turn...";
-		auto start = std::chrono::high_resolution_clock::now();
-		aiPoints = ai.minimax(mth::PentagoMove(), depth, 1, -1000, 1000, board); // player = 1
-		auto stop = std::chrono::high_resolution_clock::now();
-		aiPoints = ai.testVal;
-		if (board.marbleAt(ai.bestMove.marblePos.x, ai.bestMove.marblePos.y) != 0) {
-			std::cout << "PLACING OVER EXISTING MARBLE...\n";
-			std::cout << "Placing pos = " << ai.bestMove.marblePos.x << " " << ai.bestMove.marblePos.y << " | rot: " << ai.bestMove.rotation.x << " " << ai.bestMove.rotation.y << "\n";
-			break;
-		}
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-		std::cout << "Time to calc: " << duration.count() << "ms\n";
-		board.setMarble(ai.bestMove.marblePos.x, ai.bestMove.marblePos.y, 1);
-		board.rotateSubBoard(ai.bestMove.rotation.x, ai.bestMove.rotation.y);
-		hasWon = board.hasWonFast();
-		if (hasWon != 0) {
-			break;
-		}
-	}
-	
-	std::cout << "\n\n";
-	//system("cls");
-	board.printBoard();
-	std::cout << "  Player: " << hasWon << " WON!\n";
+	*/
 }
 
 void HumanPlayer::doMove(ptg::PentagoGame & board)
@@ -140,6 +125,7 @@ void MinimaxPlayer::doMove(ptg::PentagoGame & board)
 	std::cout << "Time to calc: " << duration.count() << "ms\n";
 	board.setMarble(ai.bestMove.marblePos.x, ai.bestMove.marblePos.y, 1);
 	board.rotateSubBoard(ai.bestMove.rotation.x, ai.bestMove.rotation.y);
+	//ai.clearTables();
 }
 
 NNPlayer::NNPlayer()
@@ -151,7 +137,7 @@ NNPlayer::NNPlayer()
 	layerSizes.push_back(10);
 	layerSizes.push_back(10);
 	nn = new NeuralNetwork(layerSizes);
-	nn->loadNetwork("80by3_minimax_depth3_network.txt");
+	nn->loadNetwork("80by3_minimax_depth3_test_network.txt");
 }
 
 void NNPlayer::doMove(ptg::PentagoGame & board)
@@ -171,6 +157,8 @@ void NNPlayer::doMove(ptg::PentagoGame & board)
 	auto outputs = nn->calculateOutputs();
 	double marbleVal=0;
 	int maxMarbleValId=0;
+	std::cout << "Outputs of neural network:\n";
+	std::cout << outputs << "\n";
 	for (int i = 0; i < 36; i++) {
 		if (outputs(i, 0) > marbleVal) {
 			marbleVal = outputs(i, 0);

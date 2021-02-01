@@ -25,6 +25,9 @@
     <Filter Include="Source Files\NeuralNetwork">
       <UniqueIdentifier>{e04ceee9-cfa0-4b16-b6cb-4a06c531151b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\GUI">
+      <UniqueIdentifier>{ad54cee2-0ccf-411b-8d83-bb952dbcb57e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -51,6 +54,9 @@
     <ClCompile Include="NNTrainer.cpp">
       <Filter>Source Files\NeuralNetwork</Filter>
     </ClCompile>
+    <ClCompile Include="GUI.cpp">
+      <Filter>Source Files\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pentago.h">
@@ -73,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="NNTrainer.h">
       <Filter>Source Files\NeuralNetwork</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI.h">
+      <Filter>Source Files\GUI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

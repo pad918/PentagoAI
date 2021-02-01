@@ -93,7 +93,7 @@ void NNTrainer::trainAgainstMinmax()
 	layerSizes.push_back(80);
 	layerSizes.push_back(44);
 	NeuralNetwork nn(layerSizes);
-	nn.loadNetwork("80by3_minimax_depth3_network.txt"); //load network
+	//nn.loadNetwork("80by3_minimax_depth3_network.txt"); //load network
 	/* Setup pentago board and minimax ai
 		minimax =	player 1
 		NN		=	player 2
@@ -104,17 +104,49 @@ void NNTrainer::trainAgainstMinmax()
 	ptg::PentagoGame pentagoBoard;
 	int hits = 0;
 	int trainingNr = 0;
-	long batchNumber = 70000;
+	double costSum=0;
+	long batchNumber = 100000;// 95000;
 	/* Train the neural network */
 	for (int i = 0; i < 100000; i++) {
 
 		/* Set training sample (Pantagoboard)*/
+		//pentagoBoard = ptg::PentagoGame();
+		//int numOfMoves = rand() % 25 + 3;
+		//pentagoBoard.setMarble(0, 0, rand() % 2 + 1);
+		//for (int i = 0; i < numOfMoves; i++) {
+		//	pentagoBoard.setMarble(rand() % 6, rand() % 6, (i % 2 == 0) ? 2 : 1);
+		//}
+
+		//New sample method:
 		pentagoBoard = ptg::PentagoGame();
-		int numOfMoves = rand() % 25 + 3;
-		pentagoBoard.setMarble(0, 0, rand() % 2 + 1);
-		for (int i = 0; i < numOfMoves; i++) {
-			pentagoBoard.setMarble(rand() % 6, rand() % 6, (i % 2 == 0) ? 2 : 1);
+		int numOfMoves = rand() % 12 + 2;
+		numOfMoves += 1 - numOfMoves % 2; //Only odd numbers  
+		for (int k = 0; k < numOfMoves; k++) {
+			int type = rand() % 1;
+			int len = rand() % 2 + 1;
+			int row = rand() % 6;
+			int sp = rand() % (6 - len) + rand() % 3;
+			switch (type)
+			{
+			case 0:
+				for (int j = 0; j < len; j++) {
+					pentagoBoard.setMarble((sp+j)%6, row, (k % 2 == 0) ? 2 : 1);
+					//pentagoBoard.printBoard();
+				}
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+			case 3:
+				break;
+			}
 		}
+		int numOfRots = rand() % 4;
+		for (int k = 0; k < numOfRots; k++) {
+			pentagoBoard.rotateSubBoard(rand() % 2, rand() % 2, (rand() % 2 == 0) ? 1 : -1);
+		}
+		//pentagoBoard.printBoard();
 
 		/* Set inputs from pentago board */
 		Eigen::MatrixXd inputs(108, 1);
@@ -145,12 +177,15 @@ void NNTrainer::trainAgainstMinmax()
 
 		double lr = 1 / (1.0 + 1.0 * std::sqrt(++batchNumber)); // change learning rate here!
 		bool wasCorrect = nn.backpropogation(targetOutputs, lr); 
+		costSum += nn.calculateCost(targetOutputs);
 		hits += wasCorrect ? 1 : 0;
 		if (++trainingNr % 100 == 0) {
-			nn.saveNetwork("80by3_minimax_depth3_network.txt");
-			std::cout << "Hitrate in the last " << trainingNr << " tests = " << (100.0f * hits / (float)trainingNr) << "%\n";
+			std::cout << "-------------------------------------------------------------+n";
+			nn.saveNetwork("80by3_minimax_depth3_test_network.txt");
+			std::cout << "Hitrate in the last " << trainingNr << " tests = " << (100.0f * hits / (float)trainingNr) << "% | avg cost = " << (costSum/100.0) << "\n";
 			std::cout << "BatchNumber = " << batchNumber << " | LR = " << lr << "\n";
 			trainingNr = 0;
+			costSum = 0.0;
 			hits = 0;
 		}
 

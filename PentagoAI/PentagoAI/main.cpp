@@ -11,9 +11,10 @@
 //670  lines 2020-09-19
 //865  lines 2020-09-26
 //1284 lines 2021-01-13
+//1745 lines 2021-02-01
 
 int main() {
-	/*
+	/*srand(time(NULL));
 	NNTrainer tester;
 	tester.trainAgainstMinmax();
 	*/
