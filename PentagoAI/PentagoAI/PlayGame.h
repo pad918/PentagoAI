@@ -12,6 +12,7 @@ protected:
 
 public:
 	virtual void doMove(ptg::PentagoGame & board) = 0;
+	bool isPollingInput = false;
 };
 
 class HumanPlayer : public Player {
@@ -41,6 +42,8 @@ public:
 class GameHandler {
 private:
 	Player * playerOne, * playerTwo;
+	sf::RenderWindow * window;
+	
 public:
 	GameHandler();
 	void playGame(int playerOneType, int playerTwoType);

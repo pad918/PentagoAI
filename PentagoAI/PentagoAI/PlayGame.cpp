@@ -21,50 +21,87 @@ void GameHandler::playGame(int playerOneType, int playerTwoType)
 	int hasWon = 0;
 	ptg::PentagoGame board;
 
-	sf::RenderWindow window(sf::VideoMode(500, 500), "PENTAGO GAME");;
+	window = new sf::RenderWindow(sf::VideoMode(500, 500), "PENTAGO GAME");;
 	GUI gameGUI;
 
+	//Polling vars
+	int frameCounter=0;
+	bool mouseReleasedThisFrame = false;
+
 	//Create frame
-	while (window.isOpen()) {
+	while (window->isOpen()) {
+		mouseReleasedThisFrame = false;
 		sf::Event event;
-		while (window.pollEvent(event))
+		while (window->pollEvent(event))
 		{
 			switch (event.type) {
 			case sf::Event::Closed:
-				window.close();
+				window->close(); 
+			case sf::Event::MouseButtonReleased:
+				mouseReleasedThisFrame = true;
+				break;
+			default:
+				break;
 			}
 
 		}
 
-		window.clear();
-		gameGUI.update(window, board);
-		window.display();
+		window->clear();
+		gameGUI.update(*window, board);
+		window->display();
 
-		//Player one's move
-		std::cout << "\n";
-		board.printBoard();
-		playerOne->doMove(board);
-		hasWon = board.hasWonFast();
-		if (hasWon != 0) {
-			std::cout << "NÅGON VANN!\n";
+		int pollingPlayer = 2 * playerTwo->isPollingInput + playerOne->isPollingInput;
+		if (pollingPlayer>0) {
+			//Do the polling
+			if (mouseReleasedThisFrame) {
+				if (gameGUI.poll(*window, board)) {
+					board.rotateSubBoard(gameGUI.rotateBoard.x, gameGUI.rotateBoard.y, gameGUI.rotateBoard.z); //ändra
+					if (pollingPlayer == 1)  	
+						playerOne->isPollingInput = false; 
+					else
+						playerTwo->isPollingInput = false; 
+				}
+				else {
+					if(pollingPlayer == 1)
+						board.setMarble(gameGUI.setMarblePos.x, gameGUI.setMarblePos.y, 2);
+					else
+						board.setMarble(gameGUI.setMarblePos.x, gameGUI.setMarblePos.y, 1);
+				}
+				hasWon = board.hasWonFast();
+				if (hasWon != 0) {
+					std::cout << "player " << hasWon << "Won!" << std::endl;
+				}
+			}
+		}
+		else {
+			switch (frameCounter++ % 2)
+			{
+			case 0:
+				//Player one's move
+				std::cout << "\n";
+				board.printBoard();
+				playerOne->doMove(board);
+				hasWon = board.hasWonFast();
+				if (hasWon != 0) {
+					std::cout << "player " << hasWon << "Won!" << std::endl;
+				}
+				break;
+			case 1:
+				//Player two's turn
+				std::cout << "\n";
+				board.printBoard();
+				playerTwo->doMove(board);
+				hasWon = board.hasWonFast();
+				if (hasWon != 0) {
+					std::cout << "player " << hasWon << "Won!" << std::endl;
+				}
+				break;
+			}
 		}
 
-		window.clear();
-		gameGUI.update(window, board);
-		window.display();
-
-		//Player two's turn
-		std::cout << "\n";
-		board.printBoard();
-		playerTwo->doMove(board);
-		hasWon = board.hasWonFast();
-		if (hasWon != 0) {
-			std::cout << "NÅGON VANN!\n";
-		}
-
-		window.clear();
-		gameGUI.update(window, board);
-		window.display();		
+		window->clear();
+		gameGUI.update(*window, board);
+		window->display();
 	
 	}
 	std::cout << "Spelet avslutades av okännd anledning\n";
@@ -98,13 +135,16 @@ void GameHandler::playGame(int playerOneType, int playerTwoType)
 
 void HumanPlayer::doMove(ptg::PentagoGame & board)
 {
-	int x, y, rX, rY, dir;
+	isPollingInput = true;
+	/*int x, y, rX, rY, dir;
+	// GAMMAL KOD
 	std::cout << "Player's turn. " << "| Set marble: x y \n";
 	std::cin >> x >> y;
 	std::cout << "\nRotation: x y dir\n";
 	std::cin >> rX >> rY >> dir;
+	
 	board.setMarble(x, y, 2);
-	board.rotateSubBoard(rX, rY, dir);
+	board.rotateSubBoard(rX, rY, dir);*/
 }
 
 void MinimaxPlayer::doMove(ptg::PentagoGame & board)

@@ -286,8 +286,9 @@ uint64_t ptg::PentagoGame::getShortHash(int depth)
 	int mul = 1;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 9; j++) {
-			mul *= 3;
+			/*mul *= 3;*/
 			hash += subBoards[i].marbles[j] * mul;
+			mul *= 3;
 		}
 	}
 	hash += depth << 60;
