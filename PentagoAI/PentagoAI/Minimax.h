@@ -10,7 +10,7 @@ namespace mm{
 		int points(int streak);
 		int debugVal = 0;
 		bool debugBool = false;
-		
+
 	public:
 		Minimax();
 		int evaluate(ptg::PentagoGame board, int player); // Should be private
@@ -20,6 +20,10 @@ namespace mm{
 		int testVal = 0;
 		int debugVal2 = 0;
 		void clearTables();
+		bool ISUSINGHASHTABLE = true;
+		ptg::PentagoGame DEBUG_BOARD;
+		int timesCalledHash = 0;
+		bool grandparent = false;
 		HashTable hashTable;
 	};
 

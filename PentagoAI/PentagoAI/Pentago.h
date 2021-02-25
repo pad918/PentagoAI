@@ -43,6 +43,7 @@ namespace ptg {
 		int marbleAt(int x, int y);
 		Hash128 getHash(int depth);
 		uint64_t getShortHash(int depth);
+		void loadBoardFromHash(uint64_t hash);
 		bool operator==(const PentagoGame &other) const
 		{
 			return (subBoards[0] == other.subBoards[0] &&

@@ -93,7 +93,7 @@ void NNTrainer::trainAgainstMinmax()
 	layerSizes.push_back(80);
 	layerSizes.push_back(44);
 	NeuralNetwork nn(layerSizes);
-	//nn.loadNetwork("80by3_minimax_depth3_network.txt"); //load network
+	nn.loadNetwork("80by3_minimax_depth3_NEW_MINIMAX1.txt"); //load network
 	/* Setup pentago board and minimax ai
 		minimax =	player 1
 		NN		=	player 2
@@ -103,9 +103,12 @@ void NNTrainer::trainAgainstMinmax()
 	ai.maxDepth = maxDepth; // set minimax deapth
 	ptg::PentagoGame pentagoBoard;
 	int hits = 0;
+	int illegalMoves = 0;
 	int trainingNr = 0;
 	double costSum=0;
-	long batchNumber = 100000;// 95000;
+	double bestAvgCost = 1.0f; 
+	int testAtBestCost = 0;
+	long batchNumber = 17100;// 95000;
 	/* Train the neural network */
 	for (int i = 0; i < 100000; i++) {
 
@@ -169,8 +172,21 @@ void NNTrainer::trainAgainstMinmax()
 		int targetRotation = ai.bestMove.rotation.x * 2 + (ai.bestMove.rotation.y + 1) / 2; // OBS! kan vara fel här
 		Eigen::MatrixXd targetOutputs(44, 1);
 		targetOutputs.setZero();
+		
+		//Give illegal moves a negative target value
+		/*
+		for (int x = 0; x < 6; x++) {
+			for (int y = 0; y < 6; y++) {
+				if (pentagoBoard.marbleAt(x, y) != 0) {
+					targetOutputs(y * 6 + x, 0) = -1.00f; //kanske för lågt? kommer den bara försöka undvika allt nu eller?
+				}
+			}
+		}
+		*/
+		//Set minimax target outputs
 		targetOutputs(targetMarblePos, 0) = 1;
 		targetOutputs(36 + targetRotation, 0) = 1;
+		
 		
 
 		/* Backpropagate the network */
@@ -179,14 +195,23 @@ void NNTrainer::trainAgainstMinmax()
 		bool wasCorrect = nn.backpropogation(targetOutputs, lr); 
 		costSum += nn.calculateCost(targetOutputs);
 		hits += wasCorrect ? 1 : 0;
+
 		if (++trainingNr % 100 == 0) {
-			std::cout << "-------------------------------------------------------------+n";
-			nn.saveNetwork("80by3_minimax_depth3_test_network.txt");
-			std::cout << "Hitrate in the last " << trainingNr << " tests = " << (100.0f * hits / (float)trainingNr) << "% | avg cost = " << (costSum/100.0) << "\n";
-			std::cout << "BatchNumber = " << batchNumber << " | LR = " << lr << "\n";
+			std::cout << "-------------------------------------------------------------\n";
+			double avgCost = (costSum / 100.0);
+			if (avgCost < bestAvgCost) { 
+				bestAvgCost = avgCost; 
+				testAtBestCost = batchNumber /100;
+				nn.saveNetwork("80by3_minimax_depth3_NEW_MINIMAX1.txt");
+			}
+			
+			std::cout << "Hitrate in the last " << trainingNr << " tests = " << (100.0f * hits / (float)trainingNr) << "% | avg cost = " << avgCost << "\n";
+			std::cout << "BatchNumber = " << batchNumber << " | LR = " << lr << " | tests since best cost = " << (batchNumber/100-testAtBestCost) << "\n";
+			std::cout << "testAtBestCost = " << testAtBestCost << "\n";
 			trainingNr = 0;
 			costSum = 0.0;
 			hits = 0;
+			illegalMoves = 0;
 		}
 
 		

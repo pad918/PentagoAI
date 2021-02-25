@@ -123,8 +123,24 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 
 							uint64_t shortHash = newBoard.getShortHash(0);
 
+							//DEBUG CODE:
+							//bool isCorrectHash = false;
+							//bool isChild = false;
+							//if (depth==3) {
+							//	//std::cout << "1\n";
+							//	isCorrectHash = true;
+							//}
+
+							//if (board.getShortHash(0) == 135566 && grandparent) { //1594971
+							//	isChild = true;
+							//}
+
+							//END
+
+							
+
 							int eval;
-							if (USINGHASHTABLE && depth <= hashTable.highestDepthOfHashNy(shortHash)) {
+							if (ISUSINGHASHTABLE && depth == hashTable.highestDepthOfHashNy(shortHash)) { // <=
 								eval = hashTable.getValNy(shortHash);
 
 								//NY SKRÄPKOD!
@@ -132,8 +148,9 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 							}
 							else
 							{
+
 								eval = minimax(move, depth - 1, 2, alpha, beta, newBoard); 
-								if (USINGHASHTABLE && depth >= 2) {
+								if (ISUSINGHASHTABLE && depth == maxDepth) { //only add highest depth
 									hashTable.addElementNy(shortHash, eval, depth);
 
 									//NY SKRÄPKOD! TEST
@@ -141,17 +158,35 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 								}
 							}
 
+							//DEBUG
+							
+							//if (isChild) {
+							//	std::cout << "EVAL Child = " << eval << " hash = " << shortHash << " | depth = " << depth << " | alpha = " << alpha << " beta = " << beta << "\n";
+							//	if (!ISUSINGHASHTABLE) {
+							//		int h = 0;
+							//	}
+							//}
+							
+							
+							//if (isCorrectHash) {
+							//	std::cout << "EVAL = " << eval << " depth = " << depth << " | hash = " << shortHash << " | a b = " << alpha << " " << beta << "\n";
+							//}
+
+							//END
+
 							if (maxEvaluation < eval) {
 								maxEvaluation = eval;
 								if (depth == maxDepth) {
 									bestMove = move;
+									DEBUG_BOARD = newBoard;
 									//std::cout << "Found best move: " << eval << " | hash = " << hash.val[0] << " " << hash.val[1] << "\n";
 								}
 								
 							}
 							alpha = (eval > alpha) ? eval : alpha;
 							if (beta <= alpha) {
-								break;
+								//NYA OSÄKER
+								return maxEvaluation;
 							}	
 						}
 					}
@@ -176,8 +211,33 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 
 							uint64_t shortHash = newBoard.getShortHash(0);
 
+							//DEBUG CODE:
+
+							//bool isCorrectHash = false;
+							//grandparent = false;
+							//if (shortHash == 135566 && board.getShortHash(0) == 17252) {
+							//	grandparent = true;
+							//	//timesCalledHash++;
+							//	//std::cout << "2\n";
+							//	isCorrectHash = true;
+							//	if (!ISUSINGHASHTABLE) {
+							//		int h = 0;
+							//	}
+							//
+							//}
+							//
+							//bool isChild = false;
+							//if (board.getShortHash(0) == 17252) { //1594971
+							//	isChild = true;
+							//}
+
+							//END
+
+
+
+
 							int eval;
-							if (USINGHASHTABLE && depth <= hashTable.highestDepthOfHashNy(shortHash)) { // ATT GÖRA: mindre ska kunna använda större...
+							if (ISUSINGHASHTABLE && depth == hashTable.highestDepthOfHashNy(shortHash)) { // <=
 
 								eval = hashTable.getValNy(shortHash);
 
@@ -185,17 +245,34 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 							else
 							{
 								eval = minimax(move, depth - 1, 1, alpha, beta, newBoard);
-								if (USINGHASHTABLE && depth>=2) {
+								if (ISUSINGHASHTABLE && depth == maxDepth) { //only add highest depth
 
 									hashTable.addElementNy(shortHash, eval, depth);
 								}
 							}
+
+							//DEBUG
+							
+							//if (isChild) {
+							//	std::cout << "EVAL Child = " << eval << " hash = " << shortHash << " | alpha = " << alpha << " beta = " << beta << "\n";
+							//	//if (eval == -1) {
+							//	//	std::cout << "-1 board deapth 3 hash = " << shortHash << "\n";
+							//	//}
+							//}
+							
+							//if (isCorrectHash) {
+							//	std::cout << "Found it. Parent = " << board.getShortHash(0) << " | eval = " << eval  << "| a b = " << alpha << " " << beta << "\n";
+							//}
+
+							//END
+
 							if (minEvaluation > eval) {
 								minEvaluation = eval;
 							}
 							beta = (eval < beta) ? eval : beta;
-							if (beta <= alpha) {
-								break;
+							if (beta <= alpha) { // ska det vara <= eller <
+								//NYA OSÄKER
+								return minEvaluation;
 							}
 							
 						}

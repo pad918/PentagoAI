@@ -14,7 +14,9 @@ void GameHandler::playGame(int playerOneType, int playerTwoType)
 		neural network = 2
 	*/
 	//initialize players and variables
+	
 	playerOne = new HumanPlayer;
+	//playerOne = new NNPlayer;
 	playerTwo = new MinimaxPlayer;
 	//playerTwo = new NNPlayer;
 
@@ -55,17 +57,22 @@ void GameHandler::playGame(int playerOneType, int playerTwoType)
 			//Do the polling
 			if (mouseReleasedThisFrame) {
 				if (gameGUI.poll(*window, board)) {
-					board.rotateSubBoard(gameGUI.rotateBoard.x, gameGUI.rotateBoard.y, gameGUI.rotateBoard.z); //ändra
-					if (pollingPlayer == 1)  	
-						playerOne->isPollingInput = false; 
-					else
-						playerTwo->isPollingInput = false; 
+					if (gameGUI.wasMoveLegal) {
+						board.rotateSubBoard(gameGUI.rotateBoard.x, gameGUI.rotateBoard.y, gameGUI.rotateBoard.z); //ändra
+						playerOne->isPollingInput = false;
+						playerTwo->isPollingInput = false;
+					}
 				}
 				else {
-					if(pollingPlayer == 1)
-						board.setMarble(gameGUI.setMarblePos.x, gameGUI.setMarblePos.y, 2);
-					else
-						board.setMarble(gameGUI.setMarblePos.x, gameGUI.setMarblePos.y, 1);
+					if (!gameGUI.wasMoveLegal) {
+						std::cout << "Move is illegal\n";
+					}
+					else {
+						if (pollingPlayer == 1)
+							board.setMarble(gameGUI.setMarblePos.x, gameGUI.setMarblePos.y, 2);
+						else
+							board.setMarble(gameGUI.setMarblePos.x, gameGUI.setMarblePos.y, 1);
+					}
 				}
 				hasWon = board.hasWonFast();
 				if (hasWon != 0) {
@@ -79,7 +86,7 @@ void GameHandler::playGame(int playerOneType, int playerTwoType)
 			case 0:
 				//Player one's move
 				std::cout << "\n";
-				board.printBoard();
+				//board.printBoard();
 				playerOne->doMove(board);
 				hasWon = board.hasWonFast();
 				if (hasWon != 0) {
@@ -89,7 +96,7 @@ void GameHandler::playGame(int playerOneType, int playerTwoType)
 			case 1:
 				//Player two's turn
 				std::cout << "\n";
-				board.printBoard();
+				//board.printBoard();
 				playerTwo->doMove(board);
 				hasWon = board.hasWonFast();
 				if (hasWon != 0) {
@@ -149,12 +156,27 @@ void HumanPlayer::doMove(ptg::PentagoGame & board)
 
 void MinimaxPlayer::doMove(ptg::PentagoGame & board)
 {
-	maxDepth = 4;
 	ai.maxDepth = maxDepth; // borde flytta till där den inizieras;
 	std::cout << "\n";
 	std::cout << "minimax AI's turn...";
+
 	auto start = std::chrono::high_resolution_clock::now();
-	ai.minimax(mth::PentagoMove(), maxDepth, 1, -1000, 1000, board); // player = 1
+	//ai.ISUSINGHASHTABLE = false;
+	//int scoreNotUsing = ai.minimax(mth::PentagoMove(), maxDepth, 1, -1000, 1000, board); // player = 1
+	//auto pos1 = ai.bestMove.marblePos;
+	//long a = ai.DEBUG_BOARD.getShortHash(0);
+	//std::cout << "hash of board not using hashtable = " << a << "\n";
+
+	//DEBUG
+	ai.ISUSINGHASHTABLE = true; //true
+	int scoreUsing = ai.minimax(mth::PentagoMove(), maxDepth, 1, -1000, 1000, board); // player = 1
+	long b = ai.DEBUG_BOARD.getShortHash(0);
+	std::cout << "hash of board using hashtable = " << b << "\n";
+	//if (scoreNotUsing != scoreUsing) { //pos1.x != ai.bestMove.marblePos.x || pos1.y != ai.bestMove.marblePos.y
+	//	std::cout << "Någonting gick snett med hashtablen.... DU HAR ÄNTLIGEN HITTAT FELTET!\n";
+	//	std::cout << "p1 " << scoreNotUsing << " | p2 " << scoreUsing << "\n";
+	//}
+
 	auto stop = std::chrono::high_resolution_clock::now();
 	if (board.marbleAt(ai.bestMove.marblePos.x, ai.bestMove.marblePos.y) != 0) {
 		std::cout << "PLACING OVER EXISTING MARBLE...\n";
@@ -162,10 +184,12 @@ void MinimaxPlayer::doMove(ptg::PentagoGame & board)
 		return;
 	}
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+	//SKRIV UT DE BÄSTA DRAGEN!
+	std::cout << "BEST MOVE VALUE: " << scoreUsing << "\n";
 	std::cout << "Time to calc: " << duration.count() << "ms\n";
 	board.setMarble(ai.bestMove.marblePos.x, ai.bestMove.marblePos.y, 1);
 	board.rotateSubBoard(ai.bestMove.rotation.x, ai.bestMove.rotation.y);
-	//ai.clearTables();
+	ai.clearTables();
 }
 
 NNPlayer::NNPlayer()
@@ -200,14 +224,14 @@ void NNPlayer::doMove(ptg::PentagoGame & board)
 	std::cout << "Outputs of neural network:\n";
 	std::cout << outputs << "\n";
 	for (int i = 0; i < 36; i++) {
-		if (outputs(i, 0) > marbleVal) {
+		if (outputs(i, 0) > marbleVal && board.marbleAt(i % 6, i / 6) == 0) {
 			marbleVal = outputs(i, 0);
 			maxMarbleValId = i;
 		}
 	}
 	double rotationVal=0;
 	int maxrotationValId=0;
-	for (int i = 0; i < 36; i++) {
+	for (int i = 0; i < 36; i++) { // ÄR INTE DETTA HELT FEL? DEN KOLLAR JU PÅ MARBLE OUTPUTSEN???
 		if (outputs(i, 0) > rotationVal) {
 			rotationVal = outputs(i, 0);
 			maxrotationValId = i;
@@ -218,6 +242,8 @@ void NNPlayer::doMove(ptg::PentagoGame & board)
 	if (board.marbleAt(maxMarbleValId % 6, maxMarbleValId / 6) != 0) {
 		std::cout << "Det neurala närverket är förvirrat och försökte fuska... (lägga på annan pjäs)\n";
 	}
-	board.setMarble(maxMarbleValId%6, maxMarbleValId/6, 1);
-	board.rotateSubBoard(maxrotationValId/2, maxrotationValId%2==0 ? 1 : -1); //OKLART / Kanske fel här!
+	else {
+		board.setMarble(maxMarbleValId % 6, maxMarbleValId / 6, 1);
+		board.rotateSubBoard(maxrotationValId / 2, maxrotationValId % 2 == 0 ? 1 : -1); //OKLART / Kanske fel här!
+	}
 }

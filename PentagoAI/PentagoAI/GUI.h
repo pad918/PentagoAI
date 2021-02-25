@@ -13,6 +13,7 @@ public:
 	GUI();
 	void update(sf::RenderWindow & window, ptg::PentagoGame & board);
 	bool poll(sf::RenderWindow & window, ptg::PentagoGame & board);
+	bool wasMoveLegal;
 	sf::Vector2i setMarblePos;
 	sf::Vector3i rotateBoard;
 };

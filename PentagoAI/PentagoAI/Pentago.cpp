@@ -283,7 +283,7 @@ int ptg::PentagoGame::marbleAt(int x, int y)
 uint64_t ptg::PentagoGame::getShortHash(int depth)
 {
 	uint64_t hash = 0;
-	int mul = 1;
+	uint64_t mul = 1;
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 9; j++) {
 			/*mul *= 3;*/
@@ -293,6 +293,25 @@ uint64_t ptg::PentagoGame::getShortHash(int depth)
 	}
 	hash += depth << 60;
 	return hash;
+}
+
+void ptg::PentagoGame::loadBoardFromHash(uint64_t hash)
+{
+	uint64_t mul = 1;
+	for (int i = 0; i < 35; i++) {
+		mul *= 3;
+	}
+
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 9; j++) {
+			uint64_t temp = hash;
+			temp /= (mul!=0) ? mul : 1;
+			temp = temp & 0b11;
+			hash -= mul * temp;
+			subBoards[3-i].marbles[8-j] = (temp>2) ? 2 : temp;
+			mul /= 3;
+		}
+	}
 }
 
 Hash128 ptg::PentagoGame::getHash(int depth)
