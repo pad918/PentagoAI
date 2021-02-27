@@ -19,6 +19,35 @@ inline int mm::Minimax::points(int streak)
 
 }
 
+inline std::list<mth::PentagoMove> mm::Minimax::calculateMoves(ptg::PentagoGame board, int depth, int player)
+{
+	std::list<mth::PentagoMove> moves;
+	for (int y = 0; y < 6; y++) {
+		for (int x = 0; x < 6; x++) {
+			if (board.marbleAt(x, y) != 0) {
+				continue;
+			}
+			for (int i = 0; i < 8; i++) {
+				auto move = mth::PentagoMove(mth::Vector2(x, y), mth::Vector2(i / 2, (i % 2 == 0) ? 1 : -1));
+				moves.push_back(move);
+				//if (depth > 2) {
+				//	uint64_t key = move.getHash() + depth << 20;
+				//	if (hashTable.killerHeuristic.find(key) != hashTable.killerHeuristic.end()) {
+				//		moves.push_front(move);
+				//	}
+				//	else {
+				//		moves.push_back(move);
+				//	}
+				//}
+				//else {
+				//	moves.push_back(move);
+				//}
+			}
+		}
+	}
+	return moves;
+}
+
 mm::Minimax::Minimax()
 {
 	//Init
@@ -99,7 +128,6 @@ int mm::Minimax::evaluate(ptg::PentagoGame board, int player)
 int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int alpha, int beta, ptg::PentagoGame board)
 {
 	testVal++;
-
 	if (depth == 0 || board.hasWonFast()!=0) {
 		//Return evaluation of board
 		int player1Eval = evaluate(board, 1);
@@ -116,6 +144,7 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 					ptg::PentagoGame newBoard = board;
 					for (int i = 0; i < 8; i++) {
 						if (board.marbleAt(x, y) == 0) {
+
 							newBoard = board;
 							mth::PentagoMove move(mth::Vector2(x, y), mth::Vector2(i / 2, (i % 2 == 0) ? 1 : -1));
 							newBoard.setMarble(x, y, 1);
@@ -123,28 +152,9 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 
 							uint64_t shortHash = newBoard.getShortHash(0);
 
-							//DEBUG CODE:
-							//bool isCorrectHash = false;
-							//bool isChild = false;
-							//if (depth==3) {
-							//	//std::cout << "1\n";
-							//	isCorrectHash = true;
-							//}
-
-							//if (board.getShortHash(0) == 135566 && grandparent) { //1594971
-							//	isChild = true;
-							//}
-
-							//END
-
-							
-
 							int eval;
 							if (ISUSINGHASHTABLE && depth == hashTable.highestDepthOfHashNy(shortHash)) { // <=
 								eval = hashTable.getValNy(shortHash);
-
-								//NY SKRÄPKOD!
-								
 							}
 							else
 							{
@@ -153,26 +163,8 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 								if (ISUSINGHASHTABLE && depth == maxDepth) { //only add highest depth
 									hashTable.addElementNy(shortHash, eval, depth);
 
-									//NY SKRÄPKOD! TEST
-									
 								}
 							}
-
-							//DEBUG
-							
-							//if (isChild) {
-							//	std::cout << "EVAL Child = " << eval << " hash = " << shortHash << " | depth = " << depth << " | alpha = " << alpha << " beta = " << beta << "\n";
-							//	if (!ISUSINGHASHTABLE) {
-							//		int h = 0;
-							//	}
-							//}
-							
-							
-							//if (isCorrectHash) {
-							//	std::cout << "EVAL = " << eval << " depth = " << depth << " | hash = " << shortHash << " | a b = " << alpha << " " << beta << "\n";
-							//}
-
-							//END
 
 							if (maxEvaluation < eval) {
 								maxEvaluation = eval;
@@ -185,7 +177,6 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 							}
 							alpha = (eval > alpha) ? eval : alpha;
 							if (beta <= alpha) {
-								//NYA OSÄKER
 								return maxEvaluation;
 							}	
 						}
@@ -211,31 +202,6 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 
 							uint64_t shortHash = newBoard.getShortHash(0);
 
-							//DEBUG CODE:
-
-							//bool isCorrectHash = false;
-							//grandparent = false;
-							//if (shortHash == 135566 && board.getShortHash(0) == 17252) {
-							//	grandparent = true;
-							//	//timesCalledHash++;
-							//	//std::cout << "2\n";
-							//	isCorrectHash = true;
-							//	if (!ISUSINGHASHTABLE) {
-							//		int h = 0;
-							//	}
-							//
-							//}
-							//
-							//bool isChild = false;
-							//if (board.getShortHash(0) == 17252) { //1594971
-							//	isChild = true;
-							//}
-
-							//END
-
-
-
-
 							int eval;
 							if (ISUSINGHASHTABLE && depth == hashTable.highestDepthOfHashNy(shortHash)) { // <=
 
@@ -251,27 +217,11 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 								}
 							}
 
-							//DEBUG
-							
-							//if (isChild) {
-							//	std::cout << "EVAL Child = " << eval << " hash = " << shortHash << " | alpha = " << alpha << " beta = " << beta << "\n";
-							//	//if (eval == -1) {
-							//	//	std::cout << "-1 board deapth 3 hash = " << shortHash << "\n";
-							//	//}
-							//}
-							
-							//if (isCorrectHash) {
-							//	std::cout << "Found it. Parent = " << board.getShortHash(0) << " | eval = " << eval  << "| a b = " << alpha << " " << beta << "\n";
-							//}
-
-							//END
-
 							if (minEvaluation > eval) {
 								minEvaluation = eval;
 							}
 							beta = (eval < beta) ? eval : beta;
 							if (beta <= alpha) { // ska det vara <= eller <
-								//NYA OSÄKER
 								return minEvaluation;
 							}
 							
@@ -285,10 +235,87 @@ int mm::Minimax::minimax(mth::PentagoMove boardMove, int depth, int player, int 
 	return 1337; // To be removed
 }
 
+int mm::Minimax::minimax2(int depth, int player, int alpha, int beta, ptg::PentagoGame board)
+{
+	testVal2++;
+	if (depth == 0 || board.hasWonFast() != 0) {
+		//Return evaluation of board
+		int player1Eval = evaluate(board, 1);
+		int player2Eval = evaluate(board, 2);
+		//Return differance between the player evaluations
+		int eval = (player==2) ? player2Eval - player1Eval : player1Eval - player2Eval;
+		return eval;
+	}
+
+	auto key = board.getShortHash(0);
+
+	//Hashtabele kanske fungerar; vem vet?
+	if (hashTable.hashMap.find(key) != hashTable.hashMap.end() && hashTable.highestDepthOfHashNy(key) >= depth) {
+		auto hashf = hashTable.hashf[key];
+		switch (hashf) {
+		case hashfEXACT:
+			return hashTable.hashMap[key];
+			break;
+		case hashfALPHA:
+			if (hashTable.hashMap[key] <= alpha) {
+				return alpha;
+			}
+			break;
+		case hashfBETA:
+			if (hashTable.hashMap[key] >= beta) {
+				return beta;
+			}
+			break;
+		}
+	}
+
+	int hashf = hashfALPHA;
+
+	auto legalMoves = calculateMoves(board, depth, player);
+
+	for (auto &move : legalMoves) {
+
+		//Make move on a new board
+		ptg::PentagoGame newBoard = board;
+		newBoard.setMarble(move.marblePos.x, move.marblePos.y, player);
+		newBoard.rotateSubBoard(move.rotation.x, move.rotation.y);
+		
+		//BLABLA
+		//uint64_t shortHash = newBoard.getShortHash(0);
+		int eval;
+
+		eval = -minimax2(depth - 1, (player == 2) ? 1 : 2, -beta, -alpha, newBoard);
+
+		//Find max or min depending on player
+		if (eval > alpha) {
+			alpha = eval;
+			hashf = hashfEXACT;
+			if (depth == maxDepth) {
+				std::cout << "found best move\n";
+				bestMove = move;
+			}
+		}
+
+		if (beta <= alpha) {
+			
+			//SAVE HASH HERE:
+			hashTable.addElementNy(key, alpha, depth); //OKLART!
+			hashTable.hashf[key] = hashfBETA; //NY DUM KOD?
+
+			return beta;
+		}
+	}
+	//Save hash;
+	
+	hashTable.addElementNy(key, alpha, depth); //OKLART!
+	hashTable.hashf[key] = hashf;
+	return alpha; 
+}
+
 void mm::Minimax::clearTables()
 {
-	//hashTable.shortHashList.clear();
-	//hashTable.valueList.clear();
 	hashTable.hashMap.clear();
+	hashTable.killerHeuristic.clear();
 	hashTable.highestValuesMap.clear();
+	hashTable.hashf.clear();
 }

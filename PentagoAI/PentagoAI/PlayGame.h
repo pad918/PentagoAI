@@ -37,6 +37,7 @@ private:
 	int maxDepth = 4;
 public:
 	void doMove(ptg::PentagoGame & board);
+
 };
 
 class GameHandler {

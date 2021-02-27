@@ -36,3 +36,13 @@ mth::PentagoMove::PentagoMove()
 {
 
 }
+
+uint64_t mth::PentagoMove::getHash()
+{
+	uint64_t hash=0;
+	hash += marblePos.x;
+	hash += marblePos.y << 3;
+	hash += rotation.x	<< 5;
+	hash += rotation.y	<< 7;
+	return hash;
+}

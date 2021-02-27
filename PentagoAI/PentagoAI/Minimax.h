@@ -2,6 +2,9 @@
 #include "MyMath.h"
 #include "Pentago.h"
 #include "Hash.h"
+#include <vector>
+#include <deque>
+#include <list>
 
 namespace mm{
 
@@ -10,14 +13,17 @@ namespace mm{
 		int points(int streak);
 		int debugVal = 0;
 		bool debugBool = false;
+		std::list<mth::PentagoMove> calculateMoves(ptg::PentagoGame board, int depth, int player);
 
 	public:
 		Minimax();
 		int evaluate(ptg::PentagoGame board, int player); // Should be private
 		int minimax(mth::PentagoMove boardMove, int depth, int player, int alpha, int beta, ptg::PentagoGame board);
+		int minimax2(int depth, int player, int alpha, int beta, ptg::PentagoGame board);
 		int maxDepth=0;
 		mth::PentagoMove bestMove;
-		int testVal = 0;
+		long testVal = 0;
+		long testVal2 = 0;
 		int debugVal2 = 0;
 		void clearTables();
 		bool ISUSINGHASHTABLE = true;

@@ -7,6 +7,9 @@
 #include "include/tsl/robin_hash.h"
 #include "include/tsl/robin_set.h"
 
+#define hashfEXACT 0
+#define hashfALPHA 1
+#define hashfBETA 2
 
 
 class Hash128 {
@@ -37,6 +40,9 @@ public:
 	//std::unordered_map<uint64_t, long> hashMap; 
 	tsl::robin_map<uint64_t, long> hashMap;
 	tsl::robin_map<uint64_t, int> highestValuesMap;
+	tsl::robin_map<uint64_t, int> hashf;
+
+	tsl::robin_map<uint64_t, int> killerHeuristic;
 
 	//Gamla saker
 	int testVal = 0;

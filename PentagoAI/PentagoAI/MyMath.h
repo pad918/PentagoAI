@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 
 namespace mth {
 
@@ -20,5 +21,6 @@ namespace mth {
 		Vector2 rotation;
 		PentagoMove(Vector2 mP, Vector2 rot);
 		PentagoMove();
+		uint64_t getHash();
 	};
 }

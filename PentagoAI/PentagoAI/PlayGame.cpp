@@ -158,9 +158,9 @@ void MinimaxPlayer::doMove(ptg::PentagoGame & board)
 {
 	ai.maxDepth = maxDepth; // borde flytta till där den inizieras;
 	std::cout << "\n";
-	std::cout << "minimax AI's turn...";
+	std::cout << "minimax AI's turn...\n";
 
-	auto start = std::chrono::high_resolution_clock::now();
+	
 	//ai.ISUSINGHASHTABLE = false;
 	//int scoreNotUsing = ai.minimax(mth::PentagoMove(), maxDepth, 1, -1000, 1000, board); // player = 1
 	//auto pos1 = ai.bestMove.marblePos;
@@ -168,10 +168,16 @@ void MinimaxPlayer::doMove(ptg::PentagoGame & board)
 	//std::cout << "hash of board not using hashtable = " << a << "\n";
 
 	//DEBUG
+	ai.bestMove = mth::PentagoMove();
 	ai.ISUSINGHASHTABLE = true; //true
-	int scoreUsing = ai.minimax(mth::PentagoMove(), maxDepth, 1, -1000, 1000, board); // player = 1
-	long b = ai.DEBUG_BOARD.getShortHash(0);
-	std::cout << "hash of board using hashtable = " << b << "\n";
+	auto start = std::chrono::high_resolution_clock::now();
+	//int soce1 = ai.minimax(mth::PentagoMove(), maxDepth, 1, -1000, 1000, board);
+	ai.clearTables();
+	auto minmaxTime = std::chrono::high_resolution_clock::now();
+	int scoreUsing = ai.minimax2(/*mth::PentagoMove(),*/maxDepth, 1, -1000, 1000, board); // player = 1
+	std::cout << "Size of killer = " << ai.hashTable.killerHeuristic.size() << "\n";
+	ai.clearTables();
+
 	//if (scoreNotUsing != scoreUsing) { //pos1.x != ai.bestMove.marblePos.x || pos1.y != ai.bestMove.marblePos.y
 	//	std::cout << "Någonting gick snett med hashtablen.... DU HAR ÄNTLIGEN HITTAT FELTET!\n";
 	//	std::cout << "p1 " << scoreNotUsing << " | p2 " << scoreUsing << "\n";
@@ -183,10 +189,15 @@ void MinimaxPlayer::doMove(ptg::PentagoGame & board)
 		std::cout << "Placing pos = " << ai.bestMove.marblePos.x << " " << ai.bestMove.marblePos.y << " | rot: " << ai.bestMove.rotation.x << " " << ai.bestMove.rotation.y << "\n";
 		return;
 	}
-	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+	auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(minmaxTime - start);
+	auto duration2 = std::chrono::duration_cast<std::chrono::milliseconds>(stop - minmaxTime);
 	//SKRIV UT DE BÄSTA DRAGEN!
-	std::cout << "BEST MOVE VALUE: " << scoreUsing << "\n";
-	std::cout << "Time to calc: " << duration.count() << "ms\n";
+	std::cout << "Time to calc minmax1: " << duration1.count() << "ms\n";
+	std::cout << "Time to calc minmax2: " << duration2.count() << "ms\n";
+	std::cout << "testVal minmax1 = " << ai.testVal << "testVal minmax2 = " << ai.testVal2 << "\n";
+	//std::cout << "Size of killer after = " << ai.hashTable.killerHeuristic.size() << "\n";
+	ai.testVal = 0;
+	ai.testVal2 = 0;
 	board.setMarble(ai.bestMove.marblePos.x, ai.bestMove.marblePos.y, 1);
 	board.rotateSubBoard(ai.bestMove.rotation.x, ai.bestMove.rotation.y);
 	ai.clearTables();
