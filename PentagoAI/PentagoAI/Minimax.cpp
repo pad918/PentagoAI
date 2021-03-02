@@ -291,7 +291,7 @@ int mm::Minimax::minimax2(int depth, int player, int alpha, int beta, ptg::Penta
 			alpha = eval;
 			hashf = hashfEXACT;
 			if (depth == maxDepth) {
-				std::cout << "found best move\n";
+				//std::cout << "found best move\n";
 				bestMove = move;
 			}
 		}

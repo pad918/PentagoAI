@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Dataset.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="Hash.cpp" />
     <ClCompile Include="main.cpp" />
@@ -138,6 +139,7 @@
     <ClCompile Include="PlayGame.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dataset.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="Hash.h" />
     <ClInclude Include="Minimax.h" />

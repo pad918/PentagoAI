@@ -58,20 +58,20 @@ bool NeuralNetwork::backpropogation(Eigen::MatrixXd targets, double learningRate
 		std::cout << "ERROR: targets and outputs matrix are not of the same size\n";
 	}
 	/* Setting outputs to one or zero depending on chance [NAME OF THIS?] */
-	double weightsChanses[44]; 
-	for (int k=0; k<44; k++)
-		weightsChanses[k] = outputs(k, 0);
-	std::random_device rd;
-	std::mt19937 gen(rd()); // En långsam men nogrann slumpmetod
-	std::discrete_distribution<> d(std::begin(weightsChanses), std::end(weightsChanses) - 8);
-	std::discrete_distribution<> f(std::begin(weightsChanses) + 36, std::end(weightsChanses));
-	
-	std::map<int, int> position, rotation;
-	++position[d(gen)];
-	++rotation[f(gen)];
-	outputs.setZero();
-	outputs(position.begin()->first, 0) = 1;
-	outputs(rotation.begin()->first + 36, 0) = 1;
+	//double weightsChanses[44]; 
+	//for (int k=0; k<44; k++)
+	//	weightsChanses[k] = outputs(k, 0);
+	//std::random_device rd;
+	//std::mt19937 gen(rd()); // En långsam men nogrann slumpmetod
+	//std::discrete_distribution<> d(std::begin(weightsChanses), std::end(weightsChanses) - 8);
+	//std::discrete_distribution<> f(std::begin(weightsChanses) + 36, std::end(weightsChanses));
+	//
+	//std::map<int, int> position, rotation;
+	//++position[d(gen)];
+	//++rotation[f(gen)];
+	//outputs.setZero();
+	//outputs(position.begin()->first, 0) = 1;
+	//outputs(rotation.begin()->first + 36, 0) = 1;
 
 	/* Calculate ouput error and outputinput*/
 	Eigen::MatrixXd outputError = targets - outputs; // Eo
@@ -105,12 +105,12 @@ bool NeuralNetwork::backpropogation(Eigen::MatrixXd targets, double learningRate
 		prevLayerError = hiddenError;
 	}
 
-	for (int i = 0; i < outputs.rows(); i++) {
-		outputs(i, 0) = (outputs(i, 0) >= 0.5) ? 1.0f : 0.0f;
-	}
-	wasCorrect = targets.isApprox(outputs);
+	//for (int i = 0; i < outputs.rows(); i++) {
+	//	outputs(i, 0) = (outputs(i, 0) >= 0.5) ? 1.0f : 0.0f;
+	//}
+	//wasCorrect = targets.isApprox(outputs);
 	
-	return (wasCorrect);
+	return (false);
 
 }
 

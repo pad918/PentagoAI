@@ -57,6 +57,9 @@
     <ClCompile Include="GUI.cpp">
       <Filter>Source Files\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="Dataset.cpp">
+      <Filter>Source Files\NeuralNetwork</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pentago.h">
@@ -82,6 +85,9 @@
     </ClInclude>
     <ClInclude Include="GUI.h">
       <Filter>Source Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Dataset.h">
+      <Filter>Source Files\NeuralNetwork</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

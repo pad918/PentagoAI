@@ -9,11 +9,13 @@
 #include "PlayGame.h"
 #include "Hash.h"
 #include "NeuralNetwork.h"
+#include "Dataset.h"
 
 class NNTrainer {
-private:
-
 public:
 	void testBackprop();
+	void generateData(int numThreads);
+	void createTrainingData(int offset, int stepSize);
+	void trainAgainstDataset();
 	void trainAgainstMinmax();
 };

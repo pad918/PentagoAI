@@ -212,7 +212,7 @@ NNPlayer::NNPlayer()
 	layerSizes.push_back(10);
 	layerSizes.push_back(10);
 	nn = new NeuralNetwork(layerSizes);
-	nn->loadNetwork("80by3_minimax_depth3_test_network.txt");
+	nn->loadNetwork("80by3_dataset2_depth3_overtrained.txt");
 }
 
 void NNPlayer::doMove(ptg::PentagoGame & board)
@@ -232,29 +232,43 @@ void NNPlayer::doMove(ptg::PentagoGame & board)
 	auto outputs = nn->calculateOutputs();
 	double marbleVal=0;
 	int maxMarbleValId=0;
+	double rotationVal = 0;
+	int maxrotationValId = 0;
 	std::cout << "Outputs of neural network:\n";
 	std::cout << outputs << "\n";
-	for (int i = 0; i < 36; i++) {
-		if (outputs(i, 0) > marbleVal && board.marbleAt(i % 6, i / 6) == 0) {
+	//for (int i = 0; i < 36; i++) {
+	//	if (outputs(i, 0) > marbleVal && board.marbleAt(i % 6, i / 6) == 0) {
+	//		marbleVal = outputs(i, 0);
+	//		maxMarbleValId = i;
+	//	}
+	//}
+	//
+	//for (int i = 0; i < 36; i++) { // ÄR INTE DETTA HELT FEL? DEN KOLLAR JU PÅ MARBLE OUTPUTSEN???
+	//	if (outputs(i, 0) > rotationVal) {
+	//		rotationVal = outputs(i, 0);
+	//		maxrotationValId = i;
+	//	}
+	//}
+	for (int i = 0; i < 288; i++) {
+		int xPos = i/48; //Borde vara korrekt
+		int yPos = (i/8)%6;
+		int rot  = i%8;
+		//std::cout << " y x z = " << yPos << " " << xPos << " " << rot << "\n";
+		if (outputs(i, 0) > marbleVal && board.marbleAt(xPos, yPos) == 0) {
 			marbleVal = outputs(i, 0);
 			maxMarbleValId = i;
 		}
 	}
-	double rotationVal=0;
-	int maxrotationValId=0;
-	for (int i = 0; i < 36; i++) { // ÄR INTE DETTA HELT FEL? DEN KOLLAR JU PÅ MARBLE OUTPUTSEN???
-		if (outputs(i, 0) > rotationVal) {
-			rotationVal = outputs(i, 0);
-			maxrotationValId = i;
-		}
-	}
-
+	int xPos = maxMarbleValId / 48; //Borde vara korrekt
+	int yPos = (maxMarbleValId / 8) % 6;
+	int rot = maxMarbleValId % 8;
+	std::cout << "made move " << maxMarbleValId << " | val = " << marbleVal << "\n";
 	//Make move
-	if (board.marbleAt(maxMarbleValId % 6, maxMarbleValId / 6) != 0) {
+	if (board.marbleAt(xPos, yPos) != 0) {
 		std::cout << "Det neurala närverket är förvirrat och försökte fuska... (lägga på annan pjäs)\n";
 	}
 	else {
-		board.setMarble(maxMarbleValId % 6, maxMarbleValId / 6, 1);
-		board.rotateSubBoard(maxrotationValId / 2, maxrotationValId % 2 == 0 ? 1 : -1); //OKLART / Kanske fel här!
+		board.setMarble(xPos, yPos, 1);
+		board.rotateSubBoard(rot / 2, rot % 2 == 0 ? 1 : -1); //OKLART / Kanske fel här!
 	}
 }

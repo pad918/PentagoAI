@@ -1,4 +1,8 @@
 ﻿#include "NNTrainer.h"
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <thread>
 
 void NNTrainer::testBackprop()
 {
@@ -73,6 +77,228 @@ void NNTrainer::testBackprop()
 		std::cout << "\n";
 	}
 
+}
+
+
+void NNTrainer::createTrainingData(int offset, int stepSize)
+{
+	//srand(offset*stepSize + time(NULL));
+	mth::rand random;
+	for (int b = offset; b < 100; b+=stepSize) {
+		
+		//Create file:
+		std::string path = "dataset/" + std::to_string(b * 1000) + ".txt";
+		std::ofstream saveFile(path);
+
+		if (saveFile.is_open())
+		{
+			//create all the samples
+			for (int i = 0; i < 100; ++i) {
+				auto board = ptg::PentagoGame();
+
+				int numOfMoves = 2 * random.intRand(1, 6);//2 * (rand() % 6 + 1);
+				//numOfMoves += 1 - numOfMoves % 2; //Only odd numbers  
+				int playerOffset = random.intRand(0, 1);
+				for (int k = playerOffset; k < numOfMoves + playerOffset; k++) {
+					int type = random.intRand(0, 3);  //rand() % 4;
+					int len =  random.intRand(1, 2);  //rand() % 2 + 1;
+					int row =  random.intRand(0, 5);// rand() % 6;
+					int col =  random.intRand(0, 5);// rand() % 6;
+					int sp  =  random.intRand(0, 6-len);// rand() % (6 - len) + rand() % 3;
+					switch (type)
+					{
+					case 0:
+						for (int j = 0; j < len; j++) {
+
+							board.setMarble((sp + j) % 6, row, (k % 2 == 0) ? 2 : 1);
+							//pentagoBoard.printBoard();
+						}
+						break;
+					case 1:
+						for (int j = 0; j < len; j++) {
+							board.setMarble(col, (sp + j) % 6, (k % 2 == 0) ? 2 : 1);
+							//pentagoBoard.printBoard();
+						}
+						break;
+					case 2:
+						for (int j = 0; j < len; j++) {
+							board.setMarble((sp + j) % 6, (sp + j) % 6, (k % 2 == 0) ? 2 : 1);
+							//pentagoBoard.printBoard();
+						}
+						break;
+					case 3:
+						for (int j = 0; j < len; j++) {
+							board.setMarble((sp + j) % 6, 5 - ((sp + j) % 6), (k % 2 == 0) ? 2 : 1);
+							//pentagoBoard.printBoard();
+						}
+						break;
+					}
+				}
+
+				//Create som random noize
+				int noiseSamples = random.intRand(6, 14);
+				for (int n = 0; n < noiseSamples; ++n) {
+					board.setMarble(random.intRand(0, 5), random.intRand(0, 5), 1 + n % 2);
+				}
+
+				//Rotate som of the subboards
+				int numOfRots = random.intRand(0, 3); // rand() % 4;
+				for (int k = 0; k < numOfRots; k++) {
+					board.rotateSubBoard(random.intRand(0, 1), random.intRand(0, 1), (random.intRand(0, 1) == 0) ? 1 : -1);
+				}
+
+				//Flip subboards randomly
+				int flip = random.intRand(0, 2);//rand() & 1;
+				if (flip > 0) {
+					for (int p = 0; p < 2; ++p) {
+						if (flip == 1) {
+							auto tmp = board.subBoards[p * 2];
+							board.subBoards[p * 2] = board.subBoards[p * 2 + 1];
+							board.subBoards[p * 2 + 1] = tmp;
+						}
+						else {
+							auto tmp = board.subBoards[p];
+							board.subBoards[p] = board.subBoards[p + 2];
+							board.subBoards[p + 2] = tmp;
+						}
+					}
+				}
+				//board.printBoard();
+
+
+				//store board in dataset file
+				saveFile << std::to_string(board.getShortHash(0)) << "\n";
+
+				//Find minimax eval of all 288 positions
+				mm::Minimax ai;
+				ai.maxDepth = 3; // set minimax deapth
+				HashTable table;
+				for (int y = 0; y < 6; ++y) {
+					for (int x = 0; x < 6; ++x) {
+						ptg::PentagoGame newBoard = board;
+						if (board.marbleAt(x, y) != 0) {
+							saveFile << std::to_string(0) << "\n";
+							continue;
+						}
+						newBoard.setMarble(x, y, 1);
+						for (int r = 0; r < 8; ++r) {
+							int eval = 0;
+							newBoard.rotateSubBoard(r / 2, (r % 2 == 0) ? 1 : -1);
+							auto key = newBoard.getShortHash(0);
+							if (table.highestDepthOfHashNy(key) > 0) {
+								eval = table.getValNy(key);
+							}
+							else {
+								eval = ai.minimax2(ai.maxDepth, 1, -10000, 10000, newBoard);
+								table.addElementNy(key, eval, 3);
+							}
+							saveFile << std::to_string(eval) << "\n";
+							//std::cout << "ONE MINMAX\n";
+							ai.clearTables();
+						}
+					}
+				}
+				table.clear();
+				std::cout << "created one sample in thread: " << offset << " | progress = " << i << "/100 " << " | board key = " << board.getShortHash(0) << "\n";
+			}
+			std::cout << "saved dataset file with batchnumber: " << b << " | path = " << path << "\n";
+			saveFile.close();
+		}
+	}
+}
+
+void NNTrainer::trainAgainstDataset()
+{
+	std::vector<int> layerSizes;
+	layerSizes.push_back(108);
+	layerSizes.push_back(80);
+	layerSizes.push_back(80);
+	layerSizes.push_back(80);
+	layerSizes.push_back(288); //8 rotations times 36 positions
+	NeuralNetwork nn(layerSizes);
+	nn.loadNetwork("80by3_dataset2_depth3_overtrained.txt"); //load network
+
+	//Load training data:
+	Dataset dataset("dataset/data2/", 65);
+
+
+	//train the network:
+	ptg::PentagoGame pentagoBoard;
+	int hits = 0;
+	int illegalMoves = 0;
+	int trainingNr = 0;
+	double costSum = 0;
+	double bestAvgCost = 8.85; // INFINITY;
+	int testAtBestCost = 0;
+	long batchNumber = 1100000;// 95000;
+	int sizeOfBatch = 10000;
+
+	for (int i = 0; i < 3000000; i++) {
+		//Load pentago board from training data
+		auto key = dataset.getBoard(i);
+		pentagoBoard.loadBoardFromHash(key);
+
+		/* Set inputs from pentago board */
+		Eigen::MatrixXd inputs(108, 1);
+		inputs.setZero();
+		for (int j = 0; j < 36; j++) {
+			int player = pentagoBoard.marbleAt(j % 6, j / 6);
+			inputs(j * 3 + player, 0) = 1;
+		}
+		nn.setInputs(inputs);
+		
+		//Set targets for backpropgataion
+		Eigen::MatrixXd targetOutputs(288, 1);
+		targetOutputs.setZero();
+		auto dataTargets = dataset.getTargets(i);
+		for (int t = 0; t < 288; ++t) {
+			targetOutputs(t, 0) = dataTargets[t];
+		}
+
+
+		/* Backpropagate the network */
+
+		double lr = 1 / (1.0 + 1.0 * std::sqrt(++batchNumber)); // change learning rate here!
+		bool wasCorrect = nn.backpropogation(targetOutputs, lr);
+		costSum += nn.calculateCost(targetOutputs);
+
+		hits += wasCorrect ? 1 : 0;
+
+		if (++trainingNr % sizeOfBatch == 0) {
+			std::cout << "-------------------------------------------------------------\n";
+			double avgCost = (costSum / (double)sizeOfBatch);
+			if (avgCost < bestAvgCost) {
+				bestAvgCost = avgCost;
+				testAtBestCost = batchNumber / sizeOfBatch;
+				nn.saveNetwork("80by3_dataset2_depth3_overtrained_delux.txt");
+			}
+
+			std::cout << "Hitrate in the last " << trainingNr << " tests = " << ((float)sizeOfBatch * hits / (float)trainingNr) << "% | avg cost = " << avgCost << "\n";
+			std::cout << "BatchNumber = " << batchNumber << " | LR = " << lr << " | tests since best cost = " << (batchNumber / sizeOfBatch - testAtBestCost) << "\n";
+			std::cout << "testAtBestCost = " << testAtBestCost << "\n";
+			trainingNr = 0;
+			costSum = 0.0;
+			hits = 0;
+			illegalMoves = 0;
+		}
+
+	}
+
+}
+
+void NNTrainer::generateData(int numThreads)
+{
+	//Start threads
+	std::thread threads[4];
+	std::cout << "Creating " << numThreads << " treads...\n";
+
+	for (int i = 0; i < 4; i++) {
+		threads[i] = std::thread(&NNTrainer::createTrainingData, this, i, 4);
+	}
+	for (int i = 0; i < 4; ++i) {
+		threads[i].join();
+		std::cout << "Thread " << i << " finnished\n";
+	}
 }
 
 void NNTrainer::trainAgainstMinmax()
@@ -164,7 +390,7 @@ void NNTrainer::trainAgainstMinmax()
 		//auto start = std::chrono::high_resolution_clock::now();
 		
 		ai.clearTables();
-		ai.minimax(mth::PentagoMove(), maxDepth, 1, -1000, 1000, pentagoBoard);
+		ai.minimax2(maxDepth, 1, -10000, 10000, pentagoBoard);
 		//auto stop = std::chrono::high_resolution_clock::now();
 		//auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
 		//std::cout << "Time to calc minimax: " << duration.count() << "ms\n";

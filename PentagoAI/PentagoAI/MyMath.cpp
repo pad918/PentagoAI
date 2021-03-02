@@ -1,4 +1,5 @@
-#include "MyMath.h"
+﻿#include "MyMath.h"
+#include <iostream>
 
 mth::Vector2::Vector2(int xPos, int yPos)
 {
@@ -45,4 +46,11 @@ uint64_t mth::PentagoMove::getHash()
 	hash += rotation.x	<< 5;
 	hash += rotation.y	<< 7;
 	return hash;
+}
+
+//Den här funktionen är rakt stulen från stackoverflow: tack Konrad Rudolph.
+int mth::rand::intRand(const int & min, const int & max) {
+	static thread_local std::random_device generator;
+	std::uniform_int_distribution<int> distribution(min, max);
+	return distribution(generator);
 }

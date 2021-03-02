@@ -1,7 +1,16 @@
 #pragma once
 #include <stdint.h>
+#include <fstream>
+#include <string>
+#include <thread>
+#include <random>
 
 namespace mth {
+	class rand {
+
+	public:
+		int intRand(const int & min, const int & max);
+	};
 
 	class Vector2 {
 	public:
@@ -22,5 +31,6 @@ namespace mth {
 		PentagoMove(Vector2 mP, Vector2 rot);
 		PentagoMove();
 		uint64_t getHash();
+		
 	};
 }
