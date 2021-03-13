@@ -12,6 +12,8 @@
 #include "Dataset.h"
 
 class NNTrainer {
+private:
+	double getLearningRate(int epoch);
 public:
 	void testBackprop();
 	void generateData(int numThreads);

@@ -9,6 +9,7 @@
 #include "NeuralNetwork.h"
 #include "NNTrainer.h"
 #include "Dataset.h"
+#include "Benchmark.h"
 //670  lines 2020-09-19
 //865  lines 2020-09-26
 //1284 lines 2021-01-13
@@ -16,16 +17,17 @@
 
 int main() {
 	
-	
+	//DEBUG:
+	//benchmarkBoardEvaluation();
+
 	//srand(time(NULL));
-	//NNTrainer tester;
+	NNTrainer tester;
 	//tester.trainAgainstDataset();
 	
 	//tester.generateData(4);
 	//tester.createTrainingData(0, 1);
 	//tester.trainAgainstDataset();
-	//tester.trainAgainstMinmax();
-	
+
 	
 	srand(0);
 	GameHandler game;

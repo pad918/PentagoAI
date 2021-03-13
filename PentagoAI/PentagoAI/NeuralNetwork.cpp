@@ -4,12 +4,22 @@
 #include <string>
 #include <chrono>
 
+void NeuralNetwork::activationFunction(Eigen::MatrixXd & input)
+{
+	tanh(input);
+}
+
+void NeuralNetwork::activationFunctionDerivative(Eigen::MatrixXd & input)
+{
+	tanhDerivative(input);
+}
+
 void NeuralNetwork::sigmoid(Eigen::MatrixXd & input) //Testad
 {
 
 	//Borde kunna använda vectorization här.
 	
-	for (int i = 0; i < input.rows()*inputs.cols(); i++) {
+	for (int i = 0; i < input.rows()*input.cols(); i++) {
 		input.array()(i) = 1.0f / (1 + std::pow(2.7182818284f, -input.array()(i)));;
 	}
 	
@@ -27,16 +37,92 @@ void NeuralNetwork::sigmoidDerivative(Eigen::MatrixXd & input) //Testad
 
 void NeuralNetwork::rectifier(Eigen::MatrixXd & input)
 {
+	//for (int i = 0; i < input.rows()*input.cols(); i++) {
+	//	if (!isfinite(input.array()(i))) {
+	//		std::cout << "skedde inann i = " << i << "\n";
+	//		break;
+	//	}
+	//}
 	input.array() = input.array().max(0.0);
+	//for (int i = 0; i < input.rows()*input.cols(); i++) {
+	//	if (!isfinite(input.array()(i))) {
+	//		std::cout << "skedde efter i = " << i << "\n";
+	//		break;
+	//	}
+	//}
 }
 
 void NeuralNetwork::rectifierDerivative(Eigen::MatrixXd & input)
 {
 	rectifier(input);
-	for (int i = 0; i < input.rows()*inputs.cols(); i++) {
+	for (int i = 0; i < input.rows()*input.cols(); i++) {
 
-		input.array()(i) = (input.array()(i) > 0) ? 1.0 : 0.0;
+		input.array()(i) = (input.array()(i) >= 0) ? 1.0 : 0.0;
 
+	}
+}
+
+void NeuralNetwork::swich(Eigen::MatrixXd & input)
+{
+	/* https://www.geeksforgeeks.org/ml-swish-function-by-google-in-keras */
+	auto tmp = input;
+	sigmoid(tmp);
+	input.array() = input.array() * tmp.array();
+}
+
+void NeuralNetwork::swichDerivative(Eigen::MatrixXd & input)
+{
+	auto swiched = input; /*y*/
+	auto sigmoided = input; /*sig(x)*/
+	sigmoid(sigmoided);
+	swich(swiched);
+	//inputs.array() = swiched.array() + sigmoided.array() * (1.0 - swiched.array()); //?
+	for (int i = 0; i < input.rows()*input.cols(); i++) {
+		double f1 = (1.0 - swiched.array()(i));
+		double f2 = sigmoided.array()(i) * f1;
+		double f3 = swiched.array()(i) * f2;
+		input.array()(i) = f3;
+		//input.array()(i) = swiched.array()(i) + (sigmoided.array()(i) * (1.0 - swiched.array()(i)));
+	}
+}
+
+void NeuralNetwork::reluLoss(Eigen::MatrixXd & input)
+{
+	for (int i = 0; i < input.rows()*input.cols(); i++) {
+		if (input.array()(i) < 0) {
+			double tmp = input.array()(i);
+			tmp *= 0.01;
+			input.array()(i) = tmp;
+		}
+	}
+}
+
+void NeuralNetwork::reluLossDerivative(Eigen::MatrixXd & input)
+{
+	for (int i = 0; i < input.rows()*input.cols(); i++) {
+		double tmp = input.array()(i);
+		tmp = tmp > 0.0 ? 1.0 : 0.0;
+		input.array()(i) = tmp;
+
+	}
+}
+
+void NeuralNetwork::tanh(Eigen::MatrixXd & input)
+{
+	for (int i = 0; i < input.rows()*input.cols(); i++) {
+			double tmp = input.array()(i);
+			tmp = (std::pow(2.7182818284f, tmp) - std::pow(2.7182818284f, -tmp)) / (std::pow(2.7182818284f, tmp) + std::pow(2.7182818284f, -tmp));
+			input.array()(i) = tmp;
+	}
+}
+
+void NeuralNetwork::tanhDerivative(Eigen::MatrixXd & input)
+{
+	for (int i = 0; i < input.rows()*input.cols(); i++) {
+		double tanhTmp = input.array()(i);
+		tanhTmp = (std::pow(2.7182818284f, tanhTmp) - std::pow(2.7182818284f, -tanhTmp)) / (std::pow(2.7182818284f, tanhTmp) + std::pow(2.7182818284f, -tanhTmp));
+		tanhTmp = 1.0 - (tanhTmp * tanhTmp);
+		input.array()(i) = tanhTmp;
 	}
 }
 
@@ -75,12 +161,13 @@ bool NeuralNetwork::backpropogation(Eigen::MatrixXd targets, double learningRate
 
 	/* Calculate ouput error and outputinput*/
 	Eigen::MatrixXd outputError = targets - outputs; // Eo
-	Eigen::MatrixXd outputInput = weights.back() * neurons[neurons.size()-2] + biases.back(); 
-	sigmoidDerivative(outputInput); //sigmoid
+	Eigen::MatrixXd outputInput = weights.back() * neurons[neurons.size()-2] + biases.back();
+	activationFunctionDerivative(outputInput); 
 	outputError.array() = outputError.array() * outputInput.array();
 
 	//update weights
 	Eigen::MatrixXd weightDerivate = outputError * neurons[neurons.size() - 2].transpose();
+	//weightDerivate.array() = weightDerivate.array().min(0.1);
 	weights.back() += weightDerivate * learningRate;
 
 	//Update biases
@@ -88,6 +175,9 @@ bool NeuralNetwork::backpropogation(Eigen::MatrixXd targets, double learningRate
 
 	//Hidden layers 
 	Eigen::MatrixXd prevLayerError = outputError;
+
+	//Print avrage error for differant layers...
+
 	for (int i = neurons.size() - 2; i >= 1; i--) {
 
 		//Calculate layer error
@@ -96,21 +186,27 @@ bool NeuralNetwork::backpropogation(Eigen::MatrixXd targets, double learningRate
 
 		//Calculate layer inputs
 		Eigen::MatrixXd hiddenInput = weights[i-1] * neurons[i-1] + biases[i-1];  
-		sigmoidDerivative(hiddenInput); //sigmoid
+		activationFunctionDerivative(hiddenInput); 
 		hiddenError.array() *= hiddenInput.array(); 
 
-		Eigen::MatrixXd wd = hiddenError * neurons[i-1].transpose(); 
+		Eigen::MatrixXd wd = hiddenError * neurons[i-1].transpose(); //HIDDDEN ERROR INFINITY!
+		//wd.array() = wd.array().min(0.1);
 		weights[i - 1] += wd * learningRate;
 		biases[i - 1] += hiddenError * learningRate;
+
 		prevLayerError = hiddenError;
 	}
+	//DEBUG:
+	//std::cout << "lay1 = " << sums[0] << " Lay2 = " << sums[1] << " Lay3 = " << sums[2] << "\n";
 
-	//for (int i = 0; i < outputs.rows(); i++) {
-	//	outputs(i, 0) = (outputs(i, 0) >= 0.5) ? 1.0f : 0.0f;
-	//}
-	//wasCorrect = targets.isApprox(outputs);
-	
-	return (false);
+	int maxIndex = 0;
+	double maxVal = 0;
+	for (int i = 0; i < outputs.rows(); i++) {
+		maxIndex = maxVal < outputs(i, 0) ? i : maxIndex;
+		maxVal = maxVal < outputs(i, 0) ? outputs(i, 0) : maxVal;
+	}
+	wasCorrect = targets(maxIndex, 0) == 1;
+	return (wasCorrect);
 
 }
 
@@ -121,6 +217,9 @@ void NeuralNetwork::printMatrix(Eigen::MatrixXd matrix)
 
 NeuralNetwork::NeuralNetwork(std::vector<int> layerSizes)
 {
+	for(int i = 0; i<3; i++)
+		sums[i] = 0;
+
 	networkLayerSizes = layerSizes;
 	std::cout << "Creating neural network...\n\n";
 	if (layerSizes.size() < 3) { std::cout << "Incrorrect input size\n"; return; }
@@ -136,7 +235,21 @@ NeuralNetwork::NeuralNetwork(std::vector<int> layerSizes)
 
 		//Randomize default weight values. 
 		weights[i].setRandom();
+		
+		
+		weights[i] *= 0.075; //0.05 | 0.82
+		//weights[i] *= std::sqrt(2.0 / networkLayerSizes[i]);
 		//std::cout << "Weight " << i << " = \n" << weights[i] << "\n";
+
+		//XAVIER RANDOM
+		//weights[i] *= std::sqrt(6.0 / (double)(layerSizes[i] + layerSizes[i+1])); //0.05
+
+		//XAVIER NORMAL
+		//std::default_random_engine generator;
+		//std::normal_distribution<double> distribution(0.0, std::sqrt(2.0 / networkLayerSizes[i]));
+		//for (int k = 0; k < weights[i].size(); k++) {
+		//	weights[i].array()(k) = distribution(generator);
+		//}
 
 		//Bias values are zero from the start.
 		biases[i].setZero();
@@ -153,8 +266,10 @@ Eigen::MatrixXd NeuralNetwork::calculateOutputs()
 {
 	
 	for (int i = 1; i < networkLayerSizes.size(); i++) {
+
 		neurons[i] = weights[i-1] * neurons[i-1] + biases[i-1];
-		sigmoid(neurons[i]); // sigmoid
+		
+		activationFunction(neurons[i]); 
 	}
 	return neurons.back();
 	

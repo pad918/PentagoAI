@@ -139,6 +139,7 @@
     <ClCompile Include="PlayGame.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Benchmark.h" />
     <ClInclude Include="Dataset.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="Hash.h" />

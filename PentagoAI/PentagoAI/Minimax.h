@@ -17,7 +17,8 @@ namespace mm{
 
 	public:
 		Minimax();
-		int evaluate(ptg::PentagoGame board, int player); // Should be private
+		int evaluate(ptg::PentagoGame board, int player);
+		int evaluate2(ptg::PentagoGame board, int player);
 		int minimax(mth::PentagoMove boardMove, int depth, int player, int alpha, int beta, ptg::PentagoGame board);
 		int minimax2(int depth, int player, int alpha, int beta, ptg::PentagoGame board);
 		int maxDepth=0;

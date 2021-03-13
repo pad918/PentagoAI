@@ -4,6 +4,16 @@
 #include <string>
 #include <thread>
 
+double NNTrainer::getLearningRate(int epoch)
+{
+	int a = epoch % 50;
+	int b = 1 + (epoch / 50);
+	double output = 0;
+	output = 0.5*(1 + std::cos(a/(5*3.142)));
+	output *= 0.002 /* /b */; //0.002 
+	return output;
+}
+
 void NNTrainer::testBackprop()
 {
 	std::string basePath = "save_";
@@ -211,15 +221,15 @@ void NNTrainer::trainAgainstDataset()
 {
 	std::vector<int> layerSizes;
 	layerSizes.push_back(108);
-	layerSizes.push_back(80);
-	layerSizes.push_back(80);
-	layerSizes.push_back(80);
+	layerSizes.push_back(150);
+	layerSizes.push_back(150);
+	//layerSizes.push_back(150);
 	layerSizes.push_back(288); //8 rotations times 36 positions
 	NeuralNetwork nn(layerSizes);
-	nn.loadNetwork("80by3_dataset2_depth3_overtrained.txt"); //load network
+	//nn.loadNetwork("80by3_dataset3_depth3_lr5.txt"); //load network
 
 	//Load training data:
-	Dataset dataset("dataset/data2/", 65);
+	Dataset dataset("dataset/data3/", 142, true);
 
 
 	//train the network:
@@ -228,12 +238,12 @@ void NNTrainer::trainAgainstDataset()
 	int illegalMoves = 0;
 	int trainingNr = 0;
 	double costSum = 0;
-	double bestAvgCost = 8.85; // INFINITY;
+	double bestAvgCost = INFINITY; // INFINITY;
 	int testAtBestCost = 0;
-	long batchNumber = 1100000;// 95000;
+	long batchNumber = 0;// 95000;
 	int sizeOfBatch = 10000;
-
-	for (int i = 0; i < 3000000; i++) {
+	double lr = getLearningRate(0);
+	for (int i = 0; i < 10000000; i++) {
 		//Load pentago board from training data
 		auto key = dataset.getBoard(i);
 		pentagoBoard.loadBoardFromHash(key);
@@ -247,7 +257,7 @@ void NNTrainer::trainAgainstDataset()
 		}
 		nn.setInputs(inputs);
 		
-		//Set targets for backpropgataion
+		//Set targets for backpropagataion
 		Eigen::MatrixXd targetOutputs(288, 1);
 		targetOutputs.setZero();
 		auto dataTargets = dataset.getTargets(i);
@@ -258,22 +268,83 @@ void NNTrainer::trainAgainstDataset()
 
 		/* Backpropagate the network */
 
-		double lr = 1 / (1.0 + 1.0 * std::sqrt(++batchNumber)); // change learning rate here!
+		// L1: double lr = 1 / (1.0 + 1.0 * std::sqrt(++batchNumber)); // change learning rate here!
+		//double lr = 0.1 - 0.09*((double)++batchNumber/4000000.0);
+		batchNumber++;
+		//switch (++batchNumber/300000) {
+		//case 0:
+		//	lr = 0.1; break;
+		//case 1:
+		//	lr = 0.055; break;
+		//case 2:
+		//	lr = 0.05; break;
+		//case 3:
+		//	lr = 0.045; break;
+		//case 4:
+		//	lr = 0.040; break; // <== för länge tror jag (40 i rad)
+		//case 5:
+		//	lr = 0.035; break;
+		//case 6:
+		//	lr = 0.03; break;
+		//case 7:
+		//	lr = 0.02; break;
+		//case 8:
+		//	lr = 0.015; break;
+		//case 9:
+		//	lr = 0.01; break;
+		//case 10:
+		//	lr = 0.0075; break;
+		//case 11:
+		//	lr = 0.005; break;
+		//case 12:
+		//	lr = 0.0025; break;
+		//case 13:
+		//	lr = 0.0015; break;
+		//case 14:
+		//	lr = 0.0010; break;
+		//case 15:
+		//	lr = 0.00075; break;
+		//case 16:
+		//	lr = 0.0005; break;
+		//case 17:
+		//	lr = 0.00025; break;
+		//case 18:
+		//	lr = 0.00020; break;
+		//case 19:
+		//	lr = 0.00015; break;
+		//case 20:
+		//	lr = 0.00010; break;
+		//default:
+		//	lr = 0.00005;
+		//	break;
+		//}
+		//lr *= 0.02; //0.0002
+		//FOR VARIABLE LR:
+		
+
 		bool wasCorrect = nn.backpropogation(targetOutputs, lr);
 		costSum += nn.calculateCost(targetOutputs);
 
 		hits += wasCorrect ? 1 : 0;
 
+
 		if (++trainingNr % sizeOfBatch == 0) {
 			std::cout << "-------------------------------------------------------------\n";
 			double avgCost = (costSum / (double)sizeOfBatch);
-			if (avgCost < bestAvgCost) {
+			if (avgCost < bestAvgCost || !isfinite(avgCost)) {
 				bestAvgCost = avgCost;
 				testAtBestCost = batchNumber / sizeOfBatch;
-				nn.saveNetwork("80by3_dataset2_depth3_overtrained_delux.txt");
+				nn.saveNetwork("150by3_tanh_lr3.txt");
 			}
-
-			std::cout << "Hitrate in the last " << trainingNr << " tests = " << ((float)sizeOfBatch * hits / (float)trainingNr) << "% | avg cost = " << avgCost << "\n";
+			
+			else if((batchNumber / sizeOfBatch - testAtBestCost)%10==0){
+				//lr *= 0.7; //make smaller if not learning
+			}
+			else if ((batchNumber / sizeOfBatch - testAtBestCost) >= 3) {
+				//lr *= 0.95;
+			}
+			lr = getLearningRate(batchNumber / sizeOfBatch);
+			std::cout << "Hitrate in the last " << trainingNr << " tests = " << (100.f * hits / (float)trainingNr) << "% | avg cost = " << avgCost << "\n";
 			std::cout << "BatchNumber = " << batchNumber << " | LR = " << lr << " | tests since best cost = " << (batchNumber / sizeOfBatch - testAtBestCost) << "\n";
 			std::cout << "testAtBestCost = " << testAtBestCost << "\n";
 			trainingNr = 0;
@@ -425,7 +496,8 @@ void NNTrainer::trainAgainstMinmax()
 		if (++trainingNr % 100 == 0) {
 			std::cout << "-------------------------------------------------------------\n";
 			double avgCost = (costSum / 100.0);
-			if (avgCost < bestAvgCost) { 
+			if (true) { 
+				std::cout << "SAVING\n";
 				bestAvgCost = avgCost; 
 				testAtBestCost = batchNumber /100;
 				nn.saveNetwork("80by3_minimax_depth3_NEW_MINIMAX1.txt");

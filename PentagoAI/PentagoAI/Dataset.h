@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <iterator>
 #include <array>
+#include "Pentago.h"
 
 class DataSample {
 public:
@@ -22,6 +23,7 @@ private:
 	std::vector<DataSample> dataSamples;
 public:
 	Dataset(std::string pathToData, int numOfDataBatches);
+	Dataset(std::string pathToData, int numOfDataBatches, bool newMethod);
 	uint64_t getBoard(int i);
 	std::array<double, 288> getTargets(int i);
 };

@@ -17,13 +17,21 @@ private:
 	Eigen::MatrixXd lastOutputs;
 	Eigen::MatrixXd inputs; // To be removed, replaced by neurons[0]
 	std::vector<int> networkLayerSizes;
+	double sums[3]; //DEBUG REMOVE
 
 	//Functions
+	void activationFunction(Eigen::MatrixXd & input);
+	void activationFunctionDerivative(Eigen::MatrixXd & input);
 	void sigmoid(Eigen::MatrixXd & input);
 	void sigmoidDerivative(Eigen::MatrixXd & input);
 	void rectifier(Eigen::MatrixXd & input);
 	void rectifierDerivative(Eigen::MatrixXd & input);
-	
+	void swich(Eigen::MatrixXd & input);
+	void swichDerivative(Eigen::MatrixXd & input);
+	void reluLoss(Eigen::MatrixXd & input);
+	void reluLossDerivative(Eigen::MatrixXd & input);
+	void tanh(Eigen::MatrixXd & input);
+	void tanhDerivative(Eigen::MatrixXd & input);
 
 	//Debug functions:
 	void printMatrix(Eigen::MatrixXd matrix);

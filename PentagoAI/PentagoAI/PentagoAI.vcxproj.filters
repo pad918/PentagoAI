@@ -89,5 +89,8 @@
     <ClInclude Include="Dataset.h">
       <Filter>Source Files\NeuralNetwork</Filter>
     </ClInclude>
+    <ClInclude Include="Benchmark.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

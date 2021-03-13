@@ -54,16 +54,122 @@ mm::Minimax::Minimax()
 	debugBool = USINGHASHTABLE;
 }
 
-int mm::Minimax::evaluate(ptg::PentagoGame board, int player)
+int mm::Minimax::evaluate2(ptg::PentagoGame board, int player)
 {
 	//This method is slow AF, should find a smarter way to do this.
 
 	int totalPoints = 0;
+
+	//Test for vertical "rows"
+	for (int x = 0; x < 6; ++x) {
+		int streak = 0;
+
+		//Do not test 
+		int sub = x / 3;
+		int marb = x % 3;
+		bool first = board.subBoards[sub].marbles[marb] != player;
+		bool second = board.subBoards[2 + sub].marbles[marb] != player;
+		if (first && second) {
+			continue;
+		}
+
+		for (int y = 0; y < 6; ++y) {
+			int subId = (y > 2) * 2 + (x > 2) * 1;
+			int marbId = 3 * (y - (y > 2) * 3) + (x - (x > 2) * 3);
+			bool isPlayer = board.subBoards[subId].marbles[marbId] == player;
+			streak = isPlayer ? streak + 1 : streak;
+			totalPoints += (!isPlayer && streak > 2) ? points(streak) : 0;
+			streak = (!isPlayer) ? 0 : streak;
+		}
+		totalPoints += (streak > 2) ? points(streak) : 0;
+	}
+
+	//Test for horizontal "rows"
+	for (int y = 0; y < 6; ++y) {
+		int streak = 0;
+
+		//Do not test 
+		int sub = 2 * (y >= 3);
+		int marb = 3 * (y - 3*(y>=3));
+		bool first = board.subBoards[sub].marbles[marb] != player;
+		bool second = board.subBoards[sub+1].marbles[marb] != player;
+		if (first && second) {
+			continue;
+		}
+
+		for (int x = 0; x < 6; x++) {
+			int subId = (y > 2) * 2 + (x > 2) * 1;
+			int marbId = 3 * (y - (y > 2) * 3) + (x - (x > 2) * 3);
+			bool isPlayer = board.subBoards[subId].marbles[marbId] == player;
+			streak = isPlayer ? streak + 1 : streak;
+			totalPoints += (!isPlayer && streak > 2) ? points(streak) : 0;
+			streak = (!isPlayer) ? 0 : streak;
+		}
+		totalPoints += (streak > 2) ? points(streak) : 0;
+	}
+
+	//Test for down right "rows"
+	for (int i = 0; i < 7; ++i) { 
+		//Do not test if:
+		if (i > 0 && i < 6) {
+			int marb = 3 * std::max(0, 3-i) + std::max(0, i-3);
+			bool first = board.subBoards[0].marbles[marb] != player;
+			bool second = board.subBoards[3].marbles[marb] != player;
+			if (first && second) {
+				continue;
+			}
+		}
+		int streak = 0;
+		int x = 0;
+		for (int y = 3 - i; y < 6 && x < 6; ++y) {
+			y = y < 0 ? 0 : y;
+			x = (y - (3 - i)); 
+			if (x >= 0 && x < 6) {
+				int tmp = streak;
+				streak = (board.subBoards[(y > 2) * 2 + (x > 2) * 1].marbles[3 * (y - (y > 2) * 3) + (x - (x > 2) * 3)] == player) ? streak + 1 : 0;
+				totalPoints = (tmp > 1 && streak == 0) ? totalPoints + points(tmp) : totalPoints;
+			}
+		}
+		if (streak > 2) {
+			totalPoints += points(streak);
+		}
+	}
+	// Test for up right "rows"
+	for (int i = 0; i < 7; i++) {
+		if (i > 0 && i < 6) {
+			int marb = 3 * std::min(2, i - 1) + std::max(0, i - 3);
+			bool first = board.subBoards[2].marbles[marb] != player;
+			bool second = board.subBoards[1].marbles[marb] != player;
+			if (first && second) {
+				continue;
+			}
+		}
+		int streak = 0;
+		int x = 0;
+		for (int y = 2 + i; y >= 0 && x < 6; y--) {
+			y = y >= 6 ? 5 : y;
+			x = ((2 + i) - y);
+			if (x >= 0 && x < 6) {
+				int tmp = streak;
+				streak = (board.subBoards[(y > 2) * 2 + (x > 2) * 1].marbles[3 * (y - (y > 2) * 3) + (x - (x > 2) * 3)] == player) ? streak + 1 : 0;
+				totalPoints = (tmp > 1 && streak == 0) ? totalPoints + points(tmp) : totalPoints;
+			}
+		}
+		if (streak > 2) {
+			totalPoints += points(streak);
+		}
+	}
+	return totalPoints;
+}
+
+int mm::Minimax::evaluate(ptg::PentagoGame board, int player)
+{
+	int totalPoints = 0;
 	debugVal++;
 	//Test for vertical "rows"
-	for (int x = 0; x < 6; x++) {
+	for (int x = 0; x < 6; ++x) {
 		int streak = 0;
-		for (int y = 0; y < 6; y++) {
+		for (int y = 0; y < 6; ++y) {
 			if (board.subBoards[(y > 2) * 2 + (x > 2) * 1].marbles[3 * (y - (y > 2) * 3) + (x - (x > 2) * 3)] == player) { streak++; }
 			else { if (streak > 1) { totalPoints += points(streak); } streak = 0; }
 		}
@@ -76,9 +182,9 @@ int mm::Minimax::evaluate(ptg::PentagoGame board, int player)
 		int streak = 0;
 		for (int x = 0; x < 6; x++) {
 			if (board.subBoards[(y > 2) * 2 + (x > 2) * 1].marbles[3 * (y - (y > 2) * 3) + (x - (x > 2) * 3)] == player) { streak++; }
-			else { if (streak > 1) { totalPoints += points(streak); } streak = 0; }
+			else { if (streak > 2) { totalPoints += points(streak); } streak = 0; }
 		}
-		if (streak > 1) {
+		if (streak > 2) {
 			totalPoints += points(streak);
 		}
 	}
@@ -86,9 +192,9 @@ int mm::Minimax::evaluate(ptg::PentagoGame board, int player)
 	for (int i = 0; i < 9; i++) {
 		int streak = 0;
 		int x = 0;
-		for (int y = 4 - i; y < 6 && x < 6; y++ ) {
+		for (int y = 4 - i; y < 6 && x < 6; y++) {
 			if (y < 6) {
-				for (;y < 0;) {
+				for (; y < 0;) {
 					y++;
 				}
 			}
@@ -240,8 +346,8 @@ int mm::Minimax::minimax2(int depth, int player, int alpha, int beta, ptg::Penta
 	testVal2++;
 	if (depth == 0 || board.hasWonFast() != 0) {
 		//Return evaluation of board
-		int player1Eval = evaluate(board, 1);
-		int player2Eval = evaluate(board, 2);
+		int player1Eval = evaluate2(board, 1);
+		int player2Eval = evaluate2(board, 2);
 		//Return differance between the player evaluations
 		int eval = (player==2) ? player2Eval - player1Eval : player1Eval - player2Eval;
 		return eval;

@@ -11,6 +11,8 @@ class Player {
 protected:
 
 public:
+	int maxDepth = 1;
+	int playerVal = 0;
 	virtual void doMove(ptg::PentagoGame & board) = 0;
 	bool isPollingInput = false;
 };
@@ -34,7 +36,6 @@ public:
 class MinimaxPlayer : public Player {
 private:
 	mm::Minimax ai;
-	int maxDepth = 4;
 public:
 	void doMove(ptg::PentagoGame & board);
 
@@ -43,8 +44,9 @@ public:
 class GameHandler {
 private:
 	Player * playerOne, * playerTwo;
+	Player * players[2];
 	sf::RenderWindow * window;
-	
+	bool gameOver = false;
 public:
 	GameHandler();
 	void playGame(int playerOneType, int playerTwoType);
